@@ -1,6 +1,6 @@
 "use client";
 
-import { GetStrainsStatsResponseType } from "@/app/api/stats/strains/route";
+import { GetGrowerStatsResponseType } from "@/app/api/stats/growers/route";
 import SkeletonWrapper from "@/components/SkeletonWrapper";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -17,12 +17,12 @@ interface Props {
   to: Date;
 }
 
-function StrainsStats({ userSettings, from, to }: Props) {
-  const statsQuery = useQuery<GetStrainsStatsResponseType>({
-    queryKey: ["overview", "stats", "strains", from, to],
+function GrowerStats({ userSettings, from, to }: Props) {
+  const statsQuery = useQuery<GetGrowerStatsResponseType>({
+    queryKey: ["overview", "stats", "Grower", from, to],
     queryFn: () =>
       fetch(
-        `/api/stats/strains?from=${DateToUTCDate(from)}&to=${DateToUTCDate(
+        `/api/stats/Grower?from=${DateToUTCDate(from)}&to=${DateToUTCDate(
           to
         )}`
       ).then((res) => res.json()),
@@ -35,14 +35,14 @@ function StrainsStats({ userSettings, from, to }: Props) {
   return (
     <div className="flex w-full flex-wrap gap-2 md:flex-nowrap">
       <SkeletonWrapper isLoading={statsQuery.isFetching}>
-        <StrainsCard
+        <GrowerCard
           formatter={formatter}
           type="income"
           data={statsQuery.data || []}
         />
       </SkeletonWrapper>
       <SkeletonWrapper isLoading={statsQuery.isFetching}>
-        <StrainsCard
+        <GrowerCard
           formatter={formatter}
           type="expense"
           data={statsQuery.data || []}
@@ -52,16 +52,16 @@ function StrainsStats({ userSettings, from, to }: Props) {
   );
 }
 
-export default StrainsStats;
+export default GrowerStats;
 
-function StrainsCard({
+function GrowerCard({
   data,
   type,
   formatter,
 }: {
   type: TransactionType;
   formatter: Intl.NumberFormat;
-  data: GetStrainsStatsResponseType;
+  data: GetGrowerStatsResponseType;
 }) {
   const filteredData = data.filter((el) => el.type === type);
   const total = filteredData.reduce(
