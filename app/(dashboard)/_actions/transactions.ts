@@ -9,6 +9,24 @@ import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+type StrainRow = {
+  id: string;
+  createdAt: Date;
+  name: string;
+  userId: string;
+  icon: string;
+  type: string;
+};
+
+type GrowerRow = {
+  id: string;
+  createdAt: Date;
+  name: string;
+  userId: string;
+  icon: string;
+  type: string;
+};
+
 export async function CreateTransaction(form: CreateTransactionSchemaType) {
   const parsedBody = CreateTransactionSchema.safeParse(form);
   if (!parsedBody.success) {
@@ -21,7 +39,7 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
   }
 
   const { amount, strain, grower, date, description, type } = parsedBody.data;
-  const strainRow = await prisma.strain.findFirst({
+  const strainRow: StrainRow | null = await prisma.strain.findFirst({
     where: {
       userId: user.id,
       name: strain,
@@ -32,7 +50,7 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
     throw new Error("strain not found");
   }
 
-  const growerRow = await prisma.grower.findFirst({
+  const growerRow: GrowerRow | null = await prisma.grower.findFirst({
     where: {
       userId: user.id,
       name: grower,
