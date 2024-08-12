@@ -2,6 +2,7 @@
 
 import CreateStrainDialog from "@/app/(dashboard)/_components/CreateStrainDialog";
 import DeleteStrainDialog from "@/app/(dashboard)/_components/DeleteStrainDialog";
+import CreateGrowerDialog from "@/app/(dashboard)/_components/CreateGrowerDialog"; // Assuming this component exists
 import { UnitComboBox } from "@/components/UnitComboBox";
 import SkeletonWrapper from "@/components/SkeletonWrapper";
 import { Button } from "@/components/ui/button";
@@ -13,11 +14,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { TransactionType } from "@/lib/types";
-import { cn } from "@/lib/utils";
 import { Strain } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
-import { PlusSquare, TrashIcon, TrendingDown, TrendingUp } from "lucide-react";
+import { PlusSquare, TrashIcon } from "lucide-react";
 import React from "react";
 
 function page() {
@@ -29,12 +28,12 @@ function page() {
           <div>
             <p className="text-3xl font-bold">Manage</p>
             <p className="text-muted-foreground">
-              Manage your account settings and strains
+              Manage your account settings and more.
             </p>
           </div>
         </div>
       </div>
-      {/* END HEDER */}
+      {/* END HEADER */}
       <div className="container flex flex-col gap-4 p-4">
         <Card>
           <CardHeader>
@@ -47,8 +46,8 @@ function page() {
             <UnitComboBox />
           </CardContent>
         </Card>
-        <StrainList type="income" />
-        <StrainList type="expense" />
+        <StrainList />
+        <GrowerList />
       </div>
     </>
   );
@@ -56,26 +55,21 @@ function page() {
 
 export default page;
 
-function StrainList({ type }: { type: TransactionType }) {
+function StrainList() {
   const strainsQuery = useQuery({
-    queryKey: ["strains", type],
-    queryFn: () =>
-      fetch(`/api/strains?type=${type}`).then((res) => res.json()),
+    queryKey: ["strains"],
+    queryFn: () => fetch(`/api/strains`).then((res) => res.json()),
   });
 
+  const isLoading = strainsQuery.isLoading;
   const dataAvailable = strainsQuery.data && strainsQuery.data.length > 0;
 
   return (
-    <SkeletonWrapper isLoading={strainsQuery.isLoading}>
+    <SkeletonWrapper isLoading={isLoading}>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              {type === "expense" ? (
-                <TrendingDown className="h-12 w-12 items-center rounded-lg bg-red-400/10 p-2 text-red-500" />
-              ) : (
-                <TrendingUp className="h-12 w-12 items-center rounded-lg bg-emerald-400/10 p-2 text-emerald-500" />
-              )}
               <div>
                 Strains
                 <div className="text-sm text-muted-foreground">
@@ -85,7 +79,6 @@ function StrainList({ type }: { type: TransactionType }) {
             </div>
 
             <CreateStrainDialog
-              type={type}
               successCallback={() => strainsQuery.refetch()}
               trigger={
                 <Button className="gap-2 text-sm">
@@ -99,19 +92,7 @@ function StrainList({ type }: { type: TransactionType }) {
         <Separator />
         {!dataAvailable && (
           <div className="flex h-40 w-full flex-col items-center justify-center">
-            <p>
-              No
-              <span
-                className={cn(
-                  "m-1",
-                  type === "income" ? "text-emerald-500" : "text-red-500"
-                )}
-              >
-                {type}
-              </span>
-              strains yet
-            </p>
-
+            <p>No strains yet</p>
             <p className="text-sm text-muted-foreground">
               Create one to get started
             </p>
@@ -150,6 +131,81 @@ function StrainCard({ strain }: { strain: Strain }) {
           </Button>
         }
       />
+    </div>
+  );
+}
+
+function GrowerList() {
+  const growersQuery = useQuery({
+    queryKey: ["growers"],
+    queryFn: () => fetch(`/api/growers`).then((res) => res.json()),
+  });
+
+  const isLoading = growersQuery.isLoading;
+  const dataAvailable = growersQuery.data && growersQuery.data.length > 0;
+
+  return (
+    <SkeletonWrapper isLoading={isLoading}>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div>
+                Growers
+                <div className="text-sm text-muted-foreground">
+                  Sorted by name
+                </div>
+              </div>
+            </div>
+
+            <CreateGrowerDialog
+              successCallback={() => growersQuery.refetch()}
+              trigger={
+                <Button className="gap-2 text-sm">
+                  <PlusSquare className="h-4 w-4" />
+                  Create grower
+                </Button>
+              }
+            />
+          </CardTitle>
+        </CardHeader>
+        <Separator />
+        {!dataAvailable && (
+          <div className="flex h-40 w-full flex-col items-center justify-center">
+            <p>No growers yet</p>
+            <p className="text-sm text-muted-foreground">
+              Create one to get started
+            </p>
+          </div>
+        )}
+        {dataAvailable && (
+          <div className="grid grid-flow-row gap-2 p-2 sm:grid-flow-row sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {growersQuery.data.map((grower: any) => (
+              <GrowerCard grower={grower} key={grower.name} />
+            ))}
+          </div>
+        )}
+      </Card>
+    </SkeletonWrapper>
+  );
+}
+
+function GrowerCard({ grower }: { grower: any }) {
+  return (
+    <div className="flex border-separate flex-col justify-between rounded-md border shadow-md shadow-black/[0.1] dark:shadow-white/[0.1]">
+      <div className="flex flex-col items-center gap-2 p-4">
+        <span className="text-3xl" role="img">
+          {grower.icon}
+        </span>
+        <span>{grower.name}</span>
+      </div>
+      <Button
+        className="flex w-full border-separate items-center gap-2 rounded-t-none text-muted-foreground hover:bg-red-500/20"
+        variant={"secondary"}
+      >
+        <TrashIcon className="h-4 w-4" />
+        Remove
+      </Button>
     </div>
   );
 }

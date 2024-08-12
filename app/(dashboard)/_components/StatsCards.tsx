@@ -41,7 +41,7 @@ function StatsCards({ from, to, userSettings }: Props) {
         <StatCard
           formatter={formatter}
           value={income}
-          title="Total Units Moved"
+          title="Total Units Ordered"
           icon={
             <Gem className="h-14 w-14 p-3 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-lg hover:shadow-emerald-200/50 transition-all duration-300 ease-in-out transform hover:scale-105" />
           }
@@ -52,22 +52,13 @@ function StatsCards({ from, to, userSettings }: Props) {
         <StatCard
           formatter={formatter}
           value={expense}
-          title="Total Units Sitting"
+          title="Total Units Returned"
           icon={
 <Siren className="h-14 w-14 p-3 rounded-full bg-gradient-to-br from-red-400 to-pink-500 text-white shadow-lg hover:shadow-red-200/50 transition-all duration-300 ease-in-out transform hover:scale-10" />          }
         />
       </SkeletonWrapper>
 
-      <SkeletonWrapper isLoading={statsQuery.isFetching}>
-        <StatCard
-          formatter={formatter}
-          value={balance}
-          title="Inventory Total"
-          icon={
-            <Vault className="h-12 w-12 items-center rounded-lg p-2 text-violet-500 bg-violet-400/10" />
-          }
-        />
-      </SkeletonWrapper>
+      
     </div>
   );
 }
