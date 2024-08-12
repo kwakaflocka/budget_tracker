@@ -174,7 +174,6 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                 )}
               />
               
-
               <FormField
                 control={form.control}
                 name="grower"
@@ -193,9 +192,6 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                   </FormItem>
                 )}
               />
-
-              
-              
             </div>
           </form>
         </Form>

@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { TransactionType } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Grower } from "@prisma/client";
+import { grower } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
@@ -44,11 +44,11 @@ function GrowerPicker({ type, onChange }: Props) {
   });
 
   const selectedGrower = growersQuery.data?.find(
-    (grower: Grower) => grower.name === value
+    (grower: grower) => grower.name === value
   );
 
   const successCallback = useCallback(
-    (grower: Grower) => {
+    (grower: grower) => {
       setValue(grower.name);
       setOpen((prev) => !prev);
     },
@@ -89,7 +89,7 @@ function GrowerPicker({ type, onChange }: Props) {
           <CommandGroup>
             <CommandList>
               {growersQuery.data &&
-                growersQuery.data.map((grower: Grower) => (
+                growersQuery.data.map((grower: grower) => (
                   <CommandItem
                     key={grower.name}
                     onSelect={() => {
@@ -116,7 +116,7 @@ function GrowerPicker({ type, onChange }: Props) {
 
 export default GrowerPicker;
 
-function GrowerRow({ grower }: { grower: Grower }) {
+function GrowerRow({ grower }: { grower: grower }) {
   return (
     <div className="flex items-center gap-2">
       <span role="img">{grower.icon}</span>
