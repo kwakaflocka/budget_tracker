@@ -1,5 +1,3 @@
-"use server";
-
 import prisma from "@/lib/prisma";
 import {
   CreateTransactionSchema,
@@ -7,7 +5,6 @@ import {
 } from "@/schema/transaction";
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 
 type StrainRow = {
   id: string;
@@ -38,13 +35,21 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
     redirect("/sign-in");
   }
 
-  const { amount, strain, grower, date, description, type } = parsedBody.data;
+  const { amount, strain, grower, date, description = '', type } = parsedBody.data;
   const strainRow: StrainRow | null = await prisma.strain.findFirst({
     where: {
       userId: user.id,
       name: strain,
     },
-  });
+    select: {
+      id: true,
+      createdAt: true,
+      name: true,
+      userId: true,
+      icon: true,
+      type: true,
+    },
+  }) as StrainRow | null;
 
   if (!strainRow) {
     throw new Error("strain not found");
@@ -55,21 +60,30 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
       userId: user.id,
       name: grower,
     },
+    select: {
+      id: true,
+      createdAt: true,
+      name: true,
+      userId: true,
+      icon: true,
+      type: true,
+      id: true, // Add the 'id' property here
+    },
   });
 
   if (!growerRow) {
     throw new Error("grower not found");
   }
 
-  await prisma.transaction.create({
-    data: {
-      amount,
-      strainId: strainRow.id,
-      growerId: growerRow.id,
-      date,
-      description,
-      type,
-      userId: user.id,
-    },
+  return await prisma.transaction.create({
+      data: {
+          userId: user.id,
+          amount,
+          strain: { connect: { id: strainRow.id } },
+          growerId: growerRow.id,
+          date,
+          description,
+          type,
+      },
   });
 }

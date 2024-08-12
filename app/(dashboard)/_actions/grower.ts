@@ -8,6 +8,15 @@ import {
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
+type GrowerRow = {
+  id: string;
+  createdAt: Date;
+  name: string;
+  userId: string;
+  icon: string;
+  type: string;
+};
+
 export async function CreateGrower(form: CreateGrowerSchemaType) {
   const parsedBody = CreateGrowerSchema.safeParse(form);
   if (!parsedBody.success) {
