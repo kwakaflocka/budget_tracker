@@ -23,7 +23,7 @@ model Strain {
   name      String
   userId    String
   icon      String
-  type      String   @default("income")
+  type      String   @default("strain")
 
   @@unique([name, userId, type])
 }
@@ -33,7 +33,7 @@ model Grower {
   name      String
   userId    String
   icon      String
-  type      String   @default("income")
+  type      String   @default("grower")
 
   @@unique([name, userId, type])
 }

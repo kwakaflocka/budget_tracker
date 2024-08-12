@@ -2,16 +2,16 @@
 
 import prisma from "@/lib/prisma";
 import {
-  CreateStrainSchema,
-  CreateStrainSchemaType,
-  DeleteStrainSchema,
-  DeleteStrainSchemaType,
-} from "@/schema/strains";
+  CreateGrowerSchema,
+  CreateGrowerSchemaType,
+  DeleteGrowerSchema,
+  DeleteGrowerSchemaType,
+} from "@/schema/growers";
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
-export async function CreateStrain(form: CreateStrainSchemaType) {
-  const parsedBody = CreateStrainSchema.safeParse(form);
+export async function CreateGrower(form: CreateGrowerSchemaType) {
+  const parsedBody = CreateGrowerSchema.safeParse(form);
   if (!parsedBody.success) {
     throw new Error("bad request");
   }
@@ -32,8 +32,8 @@ export async function CreateStrain(form: CreateStrainSchemaType) {
   });
 }
 
-export async function DeleteStrain(form: DeleteStrainSchemaType) {
-  const parsedBody = DeleteStrainSchema.safeParse(form);
+export async function DeleteGrower(form: DeleteGrowerSchemaType) {
+  const parsedBody = DeleteGrowerSchema.safeParse(form);
   if (!parsedBody.success) {
     throw new Error("bad request");
   }
@@ -43,7 +43,7 @@ export async function DeleteStrain(form: DeleteStrainSchemaType) {
     redirect("/sign-in");
   }
 
-  return await prisma.strain.delete({
+  return await prisma.grower.delete({
     where: {
       name_userId_type: {
         userId: user.id,

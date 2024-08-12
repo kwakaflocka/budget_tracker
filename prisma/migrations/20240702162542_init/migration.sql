@@ -10,7 +10,7 @@ CREATE TABLE "Strain" (
     "name" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "icon" TEXT NOT NULL,
-    "type" TEXT NOT NULL DEFAULT 'income'
+    "type" TEXT NOT NULL DEFAULT 'strain'
 );
 
 CREATE TABLE "Grower" (
@@ -18,7 +18,7 @@ CREATE TABLE "Grower" (
     "name" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "icon" TEXT NOT NULL,
-    "type" TEXT NOT NULL DEFAULT 'income'
+    "type" TEXT NOT NULL DEFAULT 'grower'
 );
 
 -- CreateTable
@@ -33,6 +33,8 @@ CREATE TABLE "Transaction" (
     "type" TEXT NOT NULL DEFAULT 'income',
     "strain" TEXT NOT NULL,
     "strainIcon" TEXT NOT NULL
+    "grower" TEXT NOT NULL,
+    "growerIcon" TEXT NOT NULL
 );
 
 -- CreateTable
