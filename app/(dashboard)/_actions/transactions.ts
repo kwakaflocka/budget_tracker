@@ -7,6 +7,7 @@ import {
 } from "@/schema/transaction";
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 export async function CreateTransaction(form: CreateTransactionSchemaType) {
   const parsedBody = CreateTransactionSchema.safeParse(form);
@@ -19,7 +20,7 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
     redirect("/sign-in");
   }
 
-  const { amount, strain, date, description, type } = parsedBody.data;
+  const { amount, strain, grower, date, description, type } = parsedBody.data;
   const strainRow = await prisma.strain.findFirst({
     where: {
       userId: user.id,
@@ -31,74 +32,26 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
     throw new Error("strain not found");
   }
 
-  // NOTE: don't make confusion between $transaction ( prisma ) and prisma.transaction (table)
+  const growerRow = await prisma.grower.findFirst({
+    where: {
+      userId: user.id,
+      name: grower,
+    },
+  });
 
-  await prisma.$transaction([
-    // Create user transaction
-    prisma.transaction.create({
-      data: {
-        userId: user.id,
-        amount,
-        date,
-        description: description || "",
-        type,
-        strain: strainRow.name,
-        strainIcon: strainRow.icon,
-      },
-    }),
+  if (!growerRow) {
+    throw new Error("grower not found");
+  }
 
-    // Update month aggregate table
-    prisma.monthHistory.upsert({
-      where: {
-        day_month_year_userId: {
-          userId: user.id,
-          day: date.getUTCDate(),
-          month: date.getUTCMonth(),
-          year: date.getUTCFullYear(),
-        },
-      },
-      create: {
-        userId: user.id,
-        day: date.getUTCDate(),
-        month: date.getUTCMonth(),
-        year: date.getUTCFullYear(),
-        expense: type === "expense" ? amount : 0,
-        income: type === "income" ? amount : 0,
-      },
-      update: {
-        expense: {
-          increment: type === "expense" ? amount : 0,
-        },
-        income: {
-          increment: type === "income" ? amount : 0,
-        },
-      },
-    }),
-
-    // Update year aggreate
-    prisma.yearHistory.upsert({
-      where: {
-        month_year_userId: {
-          userId: user.id,
-          month: date.getUTCMonth(),
-          year: date.getUTCFullYear(),
-        },
-      },
-      create: {
-        userId: user.id,
-        month: date.getUTCMonth(),
-        year: date.getUTCFullYear(),
-        expense: type === "expense" ? amount : 0,
-        income: type === "income" ? amount : 0,
-      },
-      update: {
-        expense: {
-          increment: type === "expense" ? amount : 0,
-        },
-        income: {
-          increment: type === "income" ? amount : 0,
-        },
-      },
-    }),
-  ]);
+  await prisma.transaction.create({
+    data: {
+      amount,
+      strainId: strainRow.id,
+      growerId: growerRow.id,
+      date,
+      description,
+      type,
+      userId: user.id,
+    },
+  });
 }
