@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const paramType = searchParams.get("type");
 
-  const validator = z.enum(["expense", "income"]).nullable();
+  const validator = z.enum(["returns", "order"]).nullable();
 
   const queryParams = validator.safeParse(paramType);
   if (!queryParams.success) {

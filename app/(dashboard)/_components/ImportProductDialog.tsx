@@ -9,12 +9,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { TransactionType } from "@/lib/types";
+import { ProductType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
-  CreateTransactionSchema,
-  CreateTransactionSchemaType,
-} from "@/schema/transaction";
+    CreateProductSchema,
+    CreateProductSchemaType,
+} from "@/schema/product";
 import { ReactNode, useCallback, useState } from "react";
 
 import React from "react";
@@ -41,18 +41,18 @@ import { format } from "date-fns";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateTransaction } from "@/app/(dashboard)/_actions/transactions";
+import { CreateProduct } from "@/app/(dashboard)/_actions/products";
 import { toast } from "sonner";
 import { DateToUTCDate } from "@/lib/helpers";
 
 interface Props {
   trigger: ReactNode;
-  type: TransactionType;
+  type: ProductType;
 }
 
-function CreateTransactionDialog({ trigger, type }: Props) {
-  const form = useForm<CreateTransactionSchemaType>({
-    resolver: zodResolver(CreateTransactionSchema),
+function ImportProductDialog({ trigger, type }: Props) {
+  const form = useForm<CreateProductSchemaType>({
+    resolver: zodResolver(CreateProductSchema),
     defaultValues: {
       type,
       date: new Date(),
@@ -69,10 +69,10 @@ function CreateTransactionDialog({ trigger, type }: Props) {
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: CreateTransaction,
+    mutationFn: CreateProduct,
     onSuccess: () => {
-      toast.success("Transaction created successfully 🎉", {
-        id: "create-transaction",
+      toast.success("Product imported successfully 🎉", {
+        id: "import-product",
       });
 
       form.reset({
@@ -83,7 +83,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
         category: undefined,
       });
 
-      // After creating a transaction, we need to invalidate the overview query which will refetch data in the homepage
+      // After importing a product, we need to invalidate the overview query which will refetch data in the homepage
       queryClient.invalidateQueries({
         queryKey: ["overview"],
       });
@@ -93,8 +93,8 @@ function CreateTransactionDialog({ trigger, type }: Props) {
   });
 
   const onSubmit = useCallback(
-    (values: CreateTransactionSchemaType) => {
-      toast.loading("Creating transaction...", { id: "create-transaction" });
+    (values: CreateProductSchemaType) => {
+      toast.loading("Importing product...", { id: "import-product" });
 
       mutate({
         ...values,
@@ -110,7 +110,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Create a new
+            Import a new
             <span
               className={cn(
                 "m-1",
@@ -119,7 +119,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
             >
               {type}
             </span>
-            transaction
+            product
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -134,7 +134,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                     <Input defaultValue={""} {...field} />
                   </FormControl>
                   <FormDescription>
-                    Transaction description (optional)
+                    Product description (optional)
                   </FormDescription>
                 </FormItem>
               )}
@@ -149,7 +149,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                     <Input defaultValue={0} type="number" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Transaction amount (required)
+                    Product amount (required)
                   </FormDescription>
                 </FormItem>
               )}
@@ -169,7 +169,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                       />
                     </FormControl>
                     <FormDescription>
-                      Select a category for this transaction
+                      Select a category for this product
                     </FormDescription>
                   </FormItem>
                 )}
@@ -180,7 +180,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Transaction date</FormLabel>
+                    <FormLabel>Import date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -233,7 +233,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
             </Button>
           </DialogClose>
           <Button onClick={form.handleSubmit(onSubmit)} disabled={isPending}>
-            {!isPending && "Create"}
+            {!isPending && "Import"}
             {isPending && <Loader2 className="animate-spin" />}
           </Button>
         </DialogFooter>
@@ -242,4 +242,4 @@ function CreateTransactionDialog({ trigger, type }: Props) {
   );
 }
 
-export default CreateTransactionDialog;
+export default ImportProductDialog;

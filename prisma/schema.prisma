@@ -23,7 +23,7 @@ model Category {
   name      String
   userId    String
   icon      String
-  type      String   @default("income")
+  type      String   @default("order")
 
   @@unique([name, userId, type])
 }
@@ -37,10 +37,27 @@ model Transaction {
   description String
   date        DateTime
   userId      String
-  type        String   @default("income")
+  type        String   @default("order")
 
   category     String
   categoryIcon String
+  income       Float?  
+}
+
+model Product {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updateAt  DateTime @default(now())
+
+  amount      Float
+  description String
+  date        DateTime
+  userId      String
+  type        String   @default("import")
+
+  category     String
+  categoryIcon String
+  income       Float?
 }
 
 model MonthHistory {
@@ -48,18 +65,19 @@ model MonthHistory {
   day     Int
   month   Int
   year    Int
-  income  Float
-  expense Float
+  import  Float
+  order   Float
+  returns Float
 
-  @@id([day, month, year, userId])
+  @@id([userId, day, month, year])
 }
 
 model YearHistory {
   userId  String
   month   Int
   year    Int
-  income  Float
-  expense Float
+  order  Float
+  returns Float
 
   @@id([month, year, userId])
 }

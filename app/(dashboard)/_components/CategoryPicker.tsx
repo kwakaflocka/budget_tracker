@@ -43,7 +43,10 @@ function CategoryPicker({ type, onChange }: Props) {
       fetch(`/api/categories?type=${type}`).then((res) => res.json()),
   });
 
-  const selectedCategory = categoriesQuery.data?.find(
+  // Ensure categoriesQuery.data is an array
+  const categories = Array.isArray(categoriesQuery.data) ? categoriesQuery.data : [];
+
+  const selectedCategory = categories.find(
     (category: Category) => category.name === value
   );
 
@@ -88,24 +91,23 @@ function CategoryPicker({ type, onChange }: Props) {
           </CommandEmpty>
           <CommandGroup>
             <CommandList>
-              {categoriesQuery.data &&
-                categoriesQuery.data.map((category: Category) => (
-                  <CommandItem
-                    key={category.name}
-                    onSelect={() => {
-                      setValue(category.name);
-                      setOpen((prev) => !prev);
-                    }}
-                  >
-                    <CategoryRow category={category} />
-                    <Check
-                      className={cn(
-                        "mr-2 w-4 h-4 opacity-0",
-                        value === category.name && "opacity-100"
-                      )}
-                    />
-                  </CommandItem>
-                ))}
+              {categories.map((category: Category) => (
+                <CommandItem
+                  key={category.name}
+                  onSelect={() => {
+                    setValue(category.name);
+                    setOpen((prev) => !prev);
+                  }}
+                >
+                  <CategoryRow category={category} />
+                  <Check
+                    className={cn(
+                      "mr-2 w-4 h-4 opacity-0",
+                      value === category.name && "opacity-100"
+                    )}
+                  />
+                </CommandItem>
+              ))}
             </CommandList>
           </CommandGroup>
         </Command>

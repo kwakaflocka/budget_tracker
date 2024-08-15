@@ -2,14 +2,14 @@
 
 import prisma from "@/lib/prisma";
 import {
-  CreateTransactionSchema,
-  CreateTransactionSchemaType,
-} from "@/schema/transaction";
+  CreateProductSchema,
+  CreateProductSchemaType,
+} from "@/schema/product";
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
-export async function CreateTransaction(form: CreateTransactionSchemaType) {
-  const parsedBody = CreateTransactionSchema.safeParse(form);
+export async function CreateProduct(form: CreateProductSchemaType) {
+  const parsedBody = CreateProductSchema.safeParse(form);
   if (!parsedBody.success) {
     throw new Error(parsedBody.error.message);
   }
@@ -31,11 +31,11 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
     throw new Error("category not found");
   }
 
-  // NOTE: don't make confusion between $transaction ( prisma ) and prisma.transaction (table)
+  // NOTE: don't make confusion between $transaction (prisma) and prisma.transaction (table)
 
   await prisma.$transaction([
-    // Create user transaction
-    prisma.transaction.create({
+    // Create user product
+    prisma.product.create({
       data: {
         userId: user.id,
         amount,
@@ -62,20 +62,16 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
         day: date.getUTCDate(),
         month: date.getUTCMonth(),
         year: date.getUTCFullYear(),
-        returns: type === "returns" ? amount : 0,
-        order: type === "order" ? amount : 0,
+        import: type === "import" ? amount : 0,
       },
       update: {
-        returns: {
-          increment: type === "returns" ? amount : 0,
-        },
-        order: {
-          increment: type === "order" ? amount : 0,
+        import: {
+          increment: type === "import" ? amount : 0,
         },
       },
     }),
 
-    // Update year aggreate
+    // Update year aggregate
     prisma.yearHistory.upsert({
       where: {
         month_year_userId: {
@@ -88,15 +84,11 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
         userId: user.id,
         month: date.getUTCMonth(),
         year: date.getUTCFullYear(),
-        returns: type === "returns" ? amount : 0,
-        order: type === "order" ? amount : 0,
+        import: type === "import" ? amount : 0,
       },
       update: {
-        returns: {
-          increment: type === "returns" ? amount : 0,
-        },
-        order: {
-          increment: type === "order" ? amount : 0,
+        import: {
+          increment: type === "import" ? amount : 0,
         },
       },
     }),

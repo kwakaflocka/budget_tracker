@@ -62,14 +62,14 @@ function History({ userSettings }: { userSettings: UserSettings }) {
                 className="flex items-center gap-2 text-sm"
               >
                 <div className="h-4 w-4 rounded-full bg-emerald-500"></div>
-                Income
+                order
               </Badge>
               <Badge
                 variant={"outline"}
                 className="flex items-center gap-2 text-sm"
               >
                 <div className="h-4 w-4 rounded-full bg-red-500"></div>
-                Expense
+                returns
               </Badge>
             </div>
           </CardTitle>
@@ -84,7 +84,7 @@ function History({ userSettings }: { userSettings: UserSettings }) {
                   barCategoryGap={5}
                 >
                   <defs>
-                    <linearGradient id="incomeBar" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="orderBar" x1="0" y1="0" x2="0" y2="1">
                       <stop
                         offset={"0"}
                         stopColor="#10b981"
@@ -97,7 +97,7 @@ function History({ userSettings }: { userSettings: UserSettings }) {
                       />
                     </linearGradient>
 
-                    <linearGradient id="expenseBar" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="returnsBar" x1="0" y1="0" x2="0" y2="1">
                       <stop
                         offset={"0"}
                         stopColor="#ef4444"
@@ -141,16 +141,16 @@ function History({ userSettings }: { userSettings: UserSettings }) {
                     axisLine={false}
                   />
                   <Bar
-                    dataKey={"income"}
-                    label="Income"
-                    fill="url(#incomeBar)"
+                    dataKey={"order"}
+                    label="order"
+                    fill="url(#orderBar)"
                     radius={4}
                     className="cursor-pointer"
                   />
                   <Bar
-                    dataKey={"expense"}
-                    label="Expense"
-                    fill="url(#expenseBar)"
+                    dataKey={"returns"}
+                    label="returns"
+                    fill="url(#returnsBar)"
                     radius={4}
                     className="cursor-pointer"
                   />
@@ -184,28 +184,28 @@ function CustomTooltip({ active, payload, formatter }: any) {
   if (!active || !payload || payload.length === 0) return null;
 
   const data = payload[0].payload;
-  const { expense, income } = data;
+  const { returns, order } = data;
 
   return (
     <div className="min-w-[300px] rounded border bg-background p-4">
       <TooltipRow
         formatter={formatter}
-        label="Expense"
-        value={expense}
+        label="returns"
+        value={returns}
         bgColor="bg-red-500"
         textColor="text-red-500"
       />
       <TooltipRow
         formatter={formatter}
-        label="Income"
-        value={income}
+        label="order"
+        value={order}
         bgColor="bg-emerald-500"
         textColor="text-emerald-500"
       />
       <TooltipRow
         formatter={formatter}
         label="Balance"
-        value={income - expense}
+        value={order - returns}
         bgColor="bg-gray-100"
         textColor="text-foreground"
       />
