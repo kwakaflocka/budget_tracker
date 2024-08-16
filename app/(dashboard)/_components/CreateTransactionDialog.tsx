@@ -54,7 +54,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
   const form = useForm<CreateTransactionSchemaType>({
     resolver: zodResolver(CreateTransactionSchema),
     defaultValues: {
-      type,
+      type: "order",
       date: new Date(),
     },
   });

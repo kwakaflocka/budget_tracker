@@ -5,7 +5,9 @@ export const CreateProductSchema = z.object({
   description: z.string().optional(),
   date: z.coerce.date(),
   category: z.string(),
-  type: z.union([z.literal("order"), z.literal("returns")]),
+  type: z.string().default("order").refine((val) => ["order", "returns"].includes(val), {
+    message: "Type must be either 'order' or 'returns'",
+  }),
 });
 
 export type CreateProductSchemaType = z.infer<typeof CreateProductSchema>;

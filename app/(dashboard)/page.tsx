@@ -40,7 +40,7 @@ async function page() {
                   Import Product
                 </Button>
               }
-              type="order"
+              type="import"
             />
             <CreateTransactionDialog
               trigger={
@@ -63,7 +63,7 @@ async function page() {
                   New Return
                 </Button>
               }
-              type="return"
+              type="returns"
             />
           </div>
         </div>

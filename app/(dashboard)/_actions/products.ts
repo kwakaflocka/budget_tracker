@@ -19,10 +19,9 @@ export async function CreateProduct(form: CreateProductSchemaType) {
     redirect("/sign-in");
   }
 
-  const { amount, category, date, description, type } = parsedBody.data;
+  const { amount, category, date, name, type } = parsedBody.data;
   const categoryRow = await prisma.category.findFirst({
     where: {
-      userId: user.id,
       name: category,
     },
   });
@@ -40,7 +39,7 @@ export async function CreateProduct(form: CreateProductSchemaType) {
         userId: user.id,
         amount,
         date,
-        description: description || "",
+        name: name || "",
         type,
         category: categoryRow.name,
         categoryIcon: categoryRow.icon,
@@ -50,7 +49,7 @@ export async function CreateProduct(form: CreateProductSchemaType) {
     // Update month aggregate table
     prisma.monthHistory.upsert({
       where: {
-        day_month_year_userId: {
+        userId_day_month_year: {
           userId: user.id,
           day: date.getUTCDate(),
           month: date.getUTCMonth(),
@@ -62,11 +61,15 @@ export async function CreateProduct(form: CreateProductSchemaType) {
         day: date.getUTCDate(),
         month: date.getUTCMonth(),
         year: date.getUTCFullYear(),
-        import: type === "import" ? amount : 0,
+        returns: type === "returns" ? amount : 0,
+        order: type === "order" ? amount : 0,
       },
       update: {
-        import: {
-          increment: type === "import" ? amount : 0,
+        returns: {
+          increment: type === "returns" ? amount : 0,
+        },
+        order: {
+          increment: type === "order" ? amount : 0,
         },
       },
     }),
@@ -84,11 +87,15 @@ export async function CreateProduct(form: CreateProductSchemaType) {
         userId: user.id,
         month: date.getUTCMonth(),
         year: date.getUTCFullYear(),
-        import: type === "import" ? amount : 0,
+        returns: type === "returns" ? amount : 0,
+        order: type === "order" ? amount : 0,
       },
       update: {
-        import: {
-          increment: type === "import" ? amount : 0,
+        returns: {
+          increment: type === "returns" ? amount : 0,
+        },
+        order: {
+          increment: type === "order" ? amount : 0,
         },
       },
     }),

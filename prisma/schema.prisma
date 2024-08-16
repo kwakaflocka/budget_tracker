@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -23,9 +17,29 @@ model Category {
   name      String
   userId    String
   icon      String
-  type      String   @default("order")
+  type      String @default("ORDER") // Default type is "ORDER", but it can be "RETURN" as well
 
   @@unique([name, userId, type])
+}
+
+model Strain {
+  id        String   @id @default(uuid())
+  name      String
+  type      String   // e.g., Indica, Sativa, Hybrid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  products  Product[]
+
+  @@unique([name, type])
+}
+
+model Grower {
+  id        String   @id @default(uuid())
+  name      String
+  location  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  products  Product[]
 }
 
 model Transaction {
@@ -37,11 +51,12 @@ model Transaction {
   description String
   date        DateTime
   userId      String
-  type        String   @default("order")
+  type        String   @default("ORDER") // Default type is "ORDER", but it can be "RETURN" as well
 
   category     String
   categoryIcon String
-  income       Float?  
+  productId    String?
+  product      Product? @relation(fields: [productId], references: [id])
 }
 
 model Product {
@@ -50,14 +65,18 @@ model Product {
   updateAt  DateTime @default(now())
 
   amount      Float
-  description String
+  description Float?
   date        DateTime
   userId      String
-  type        String   @default("import")
+  type        String   @default("IMPORT") // Default type is "IMPORT", but it can be "RETURN" as well
 
   category     String
   categoryIcon String
-  income       Float?
+  strainId     String?
+  strain       Strain?  @relation(fields: [strainId], references: [id])
+  growerId     String?
+  grower       Grower?  @relation(fields: [growerId], references: [id])
+  transactions Transaction[]
 }
 
 model MonthHistory {
@@ -65,7 +84,6 @@ model MonthHistory {
   day     Int
   month   Int
   year    Int
-  import  Float
   order   Float
   returns Float
 
@@ -76,7 +94,7 @@ model YearHistory {
   userId  String
   month   Int
   year    Int
-  order  Float
+  order   Float
   returns Float
 
   @@id([month, year, userId])

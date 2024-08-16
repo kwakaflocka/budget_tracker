@@ -22,7 +22,6 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
   const { amount, category, date, description, type } = parsedBody.data;
   const categoryRow = await prisma.category.findFirst({
     where: {
-      userId: user.id,
       name: category,
     },
   });
@@ -31,7 +30,7 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
     throw new Error("category not found");
   }
 
-  // NOTE: don't make confusion between $transaction ( prisma ) and prisma.transaction (table)
+  // NOTE: don't make confusion between $transaction (prisma) and prisma.transaction (table)
 
   await prisma.$transaction([
     // Create user transaction
@@ -50,7 +49,7 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
     // Update month aggregate table
     prisma.monthHistory.upsert({
       where: {
-        day_month_year_userId: {
+        userId_day_month_year: {
           userId: user.id,
           day: date.getUTCDate(),
           month: date.getUTCMonth(),
@@ -75,7 +74,7 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
       },
     }),
 
-    // Update year aggreate
+    // Update year aggregate
     prisma.yearHistory.upsert({
       where: {
         month_year_userId: {

@@ -12,8 +12,8 @@ import {
 import { ProductType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
-    CreateProductSchema,
-    CreateProductSchemaType,
+  CreateProductSchema,
+  CreateProductSchemaType,
 } from "@/schema/product";
 import { ReactNode, useCallback, useState } from "react";
 
@@ -30,6 +30,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import StrainPicker from "@/app/(dashboard)/_components/StrainPicker";
+import GrowerPicker from "@/app/(dashboard)/_components/GrowerPicker";
 import CategoryPicker from "@/app/(dashboard)/_components/CategoryPicker";
 import {
   Popover,
@@ -54,7 +56,7 @@ function ImportProductDialog({ trigger, type }: Props) {
   const form = useForm<CreateProductSchemaType>({
     resolver: zodResolver(CreateProductSchema),
     defaultValues: {
-      type,
+      type: type, // TODO: should be removed
       date: new Date(),
     },
   });
@@ -62,6 +64,20 @@ function ImportProductDialog({ trigger, type }: Props) {
   const handleCategoryChange = useCallback(
     (value: string) => {
       form.setValue("category", value);
+    },
+    [form]
+  );
+
+  const handleStrainChange = useCallback(
+    (value: string) => {
+      form.setValue("strain", value);
+    },
+    [form]
+  );
+
+  const handleGrowerChange = useCallback(
+    (value: string) => {
+      form.setValue("grower", value);
     },
     [form]
   );
@@ -77,10 +93,12 @@ function ImportProductDialog({ trigger, type }: Props) {
 
       form.reset({
         type,
-        description: "",
+        name: "",
         amount: 0,
         date: new Date(),
         category: undefined,
+        strain: "",
+        grower: "",
       });
 
       // After importing a product, we need to invalidate the overview query which will refetch data in the homepage
@@ -109,33 +127,20 @@ function ImportProductDialog({ trigger, type }: Props) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            Import a new
-            <span
-              className={cn(
-                "m-1",
-                type === "order" ? "text-emerald-500" : "text-red-500"
-              )}
-            >
-              {type}
-            </span>
-            product
-          </DialogTitle>
+          <DialogTitle>New Product Import</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
-              name="description"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input defaultValue={""} {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Product description (optional)
-                  </FormDescription>
+                  <FormDescription>Product name (required)</FormDescription>
                 </FormItem>
               )}
             />
@@ -148,33 +153,11 @@ function ImportProductDialog({ trigger, type }: Props) {
                   <FormControl>
                     <Input defaultValue={0} type="number" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Product amount (required)
-                  </FormDescription>
+                  <FormDescription>Product amount (required)</FormDescription>
                 </FormItem>
               )}
             />
-
             <div className="flex items-center justify-between gap-2">
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Category</FormLabel>
-                    <FormControl>
-                      <CategoryPicker
-                        type={type}
-                        onChange={handleCategoryChange}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Select a category for this product
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-
               <FormField
                 control={form.control}
                 name="date"
@@ -191,11 +174,7 @@ function ImportProductDialog({ trigger, type }: Props) {
                               !field.value && "text-muted-foreground"
                             )}
                           >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
+                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -214,6 +193,34 @@ function ImportProductDialog({ trigger, type }: Props) {
                     </Popover>
                     <FormDescription>Select a date for this</FormDescription>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <FormField
+                control={form.control}
+                name="strain"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Strain</FormLabel>
+                    <FormControl>
+                      <StrainPicker type={type} onChange={handleStrainChange} />
+                    </FormControl>
+                    <FormDescription>Select a strain for this product</FormDescription>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="grower"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Grower</FormLabel>
+                    <FormControl>
+                      <GrowerPicker type={type} onChange={handleGrowerChange} />
+                    </FormControl>
+                    <FormDescription>Select a grower for this product</FormDescription>
                   </FormItem>
                 )}
               />
