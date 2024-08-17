@@ -110,6 +110,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
+<<<<<<< Updated upstream
             Create a new
             <span
               className={cn(
@@ -120,6 +121,9 @@ function CreateTransactionDialog({ trigger, type }: Props) {
               {type}
             </span>
             transaction
+=======
+            Add New
+>>>>>>> Stashed changes
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>

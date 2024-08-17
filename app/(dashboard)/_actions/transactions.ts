@@ -61,7 +61,11 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
         day: date.getUTCDate(),
         month: date.getUTCMonth(),
         year: date.getUTCFullYear(),
+<<<<<<< Updated upstream
         returns: type === "returns" ? amount : 0,
+=======
+        expense: type === "expense" ? amount : 0,
+>>>>>>> Stashed changes
         order: type === "order" ? amount : 0,
       },
       update: {
@@ -87,7 +91,11 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
         userId: user.id,
         month: date.getUTCMonth(),
         year: date.getUTCFullYear(),
+<<<<<<< Updated upstream
         returns: type === "returns" ? amount : 0,
+=======
+        expense: type === "expense" ? amount : 0,
+>>>>>>> Stashed changes
         order: type === "order" ? amount : 0,
       },
       update: {

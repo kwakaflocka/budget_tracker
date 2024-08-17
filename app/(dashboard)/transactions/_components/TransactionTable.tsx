@@ -108,7 +108,7 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
           row.original.type === "returns" && "bg-red-400/10 text-red-500"
         )}
       >
-        {row.original.type}
+        {row.original.type === "income" ? "ordered" : "returned"}
       </div>
     ),
   },
@@ -198,8 +198,13 @@ function TransactionTable({ from, to }: Props) {
               title="Type"
               column={table.getColumn("type")}
               options={[
+<<<<<<< Updated upstream
                 { label: "order", value: "order" },
                 { label: "returns", value: "returns" },
+=======
+                { label: "Ordered", value: "income" },
+                { label: "Returned", value: "expense" },
+>>>>>>> Stashed changes
               ]}
             />
           )}

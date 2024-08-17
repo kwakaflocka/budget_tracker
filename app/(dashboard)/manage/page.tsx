@@ -34,7 +34,7 @@ function page() {
           </div>
         </div>
       </div>
-      {/* END HEDER */}
+      {/* END HEADER */}
       <div className="container flex flex-col gap-4 p-4">
         <Card>
           <CardHeader>
