@@ -47,8 +47,8 @@ function page() {
             <CurrencyComboBox />
           </CardContent>
         </Card>
-        <CategoryList type="income" />
-        <CategoryList type="expense" />
+        <CategoryList type="order" />
+        <CategoryList type="returns" />
       </div>
     </>
   );
@@ -71,13 +71,13 @@ function CategoryList({ type }: { type: TransactionType }) {
         <CardHeader>
           <CardTitle className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              {type === "expense" ? (
+              {type === "returns" ? (
                 <TrendingDown className="h-12 w-12 items-center rounded-lg bg-red-400/10 p-2 text-red-500" />
               ) : (
                 <TrendingUp className="h-12 w-12 items-center rounded-lg bg-emerald-400/10 p-2 text-emerald-500" />
               )}
               <div>
-                {type === "income" ? "Incomes" : "Expenses"} categories
+                {type === "order" ? "orders" : "returnss"} categories
                 <div className="text-sm text-muted-foreground">
                   Sorted by name
                 </div>
@@ -104,7 +104,7 @@ function CategoryList({ type }: { type: TransactionType }) {
               <span
                 className={cn(
                   "m-1",
-                  type === "income" ? "text-emerald-500" : "text-red-500"
+                  type === "order" ? "text-emerald-500" : "text-red-500"
                 )}
               >
                 {type}

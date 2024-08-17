@@ -1,6 +1,6 @@
 "use client";
 
-import CreateCategoryDialog from "@/app/(dashboard)/_components/CreateCategoryDialog";
+import CreateStrainDialog from "@/app/(dashboard)/_components/CreateStrainDialog";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { TransactionType } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Category } from "@prisma/client";
+import { Strain } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
@@ -27,7 +27,7 @@ interface Props {
   onChange: (value: string) => void;
 }
 
-function CategoryPicker({ type, onChange }: Props) {
+function StrainPicker({ type, onChange }: Props) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
 
@@ -37,22 +37,22 @@ function CategoryPicker({ type, onChange }: Props) {
     onChange(value);
   }, [onChange, value]);
 
-  const categoriesQuery = useQuery({
-    queryKey: ["categories", type],
+  const strainsQuery = useQuery({
+    queryKey: ["strains", type],
     queryFn: () =>
-      fetch(`/api/categories?type=${type}`).then((res) => res.json()),
+      fetch(`/api/strains?type=${type}`).then((res) => res.json()),
   });
 
-  // Ensure categoriesQuery.data is an array
-  const categories = Array.isArray(categoriesQuery.data) ? categoriesQuery.data : [];
+  // Ensure strainsQuery.data is an array
+  const strains = Array.isArray(strainsQuery.data) ? strainsQuery.data : [];
 
-  const selectedCategory = categories.find(
-    (category: Category) => category.name === value
+  const selectedStrain = strains.find(
+    (strain: Strain) => strain.name === value
   );
 
   const successCallback = useCallback(
-    (category: Category) => {
-      setValue(category.name);
+    (strain: Strain) => {
+      setValue(strain.name);
       setOpen((prev) => !prev);
     },
     [setValue, setOpen]
@@ -67,10 +67,10 @@ function CategoryPicker({ type, onChange }: Props) {
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {selectedCategory ? (
-            <CategoryRow category={selectedCategory} />
+          {selectedStrain ? (
+            <StrainRow strain={selectedStrain} />
           ) : (
-            "Select category"
+            "Select strain"
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -81,29 +81,29 @@ function CategoryPicker({ type, onChange }: Props) {
             e.preventDefault();
           }}
         >
-          <CommandInput placeholder="Search category..." />
-          <CreateCategoryDialog type={type} successCallback={successCallback} />
+          <CommandInput placeholder="Search strain..." />
+          <CreateStrainDialog type={type} successCallback={successCallback} />
           <CommandEmpty>
-            <p>Category not found</p>
+            <p>Strain not found</p>
             <p className="text-xs text-muted-foreground">
-              Tip: Create a new category
+              Tip: Create a new strain
             </p>
           </CommandEmpty>
           <CommandGroup>
             <CommandList>
-              {categories.map((category: Category) => (
+              {strains.map((strain: Strain) => (
                 <CommandItem
-                  key={category.name}
+                  key={strain.name}
                   onSelect={() => {
-                    setValue(category.name);
+                    setValue(strain.name);
                     setOpen((prev) => !prev);
                   }}
                 >
-                  <CategoryRow category={category} />
+                  <StrainRow strain={strain} />
                   <Check
                     className={cn(
                       "mr-2 w-4 h-4 opacity-0",
-                      value === category.name && "opacity-100"
+                      value === strain.name && "opacity-100"
                     )}
                   />
                 </CommandItem>
@@ -116,13 +116,13 @@ function CategoryPicker({ type, onChange }: Props) {
   );
 }
 
-export default CategoryPicker;
+export default StrainPicker;
 
-function CategoryRow({ category }: { category: Category }) {
+function StrainRow({ strain }: { strain: Strain }) {
   return (
     <div className="flex items-center gap-2">
-      <span role="img">{category.icon}</span>
-      <span>{category.name}</span>
+      <span role="img">{strain.icon}</span>
+      <span>{strain.name}</span>
     </div>
   );
 }

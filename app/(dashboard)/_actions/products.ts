@@ -2,14 +2,14 @@
 
 import prisma from "@/lib/prisma";
 import {
-  CreateTransactionSchema,
-  CreateTransactionSchemaType,
-} from "@/schema/transaction";
+  CreateProductSchema,
+  CreateProductSchemaType,
+} from "@/schema/product";
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
-export async function CreateTransaction(form: CreateTransactionSchemaType) {
-  const parsedBody = CreateTransactionSchema.safeParse(form);
+export async function CreateProduct(form: CreateProductSchemaType) {
+  const parsedBody = CreateProductSchema.safeParse(form);
   if (!parsedBody.success) {
     throw new Error(parsedBody.error.message);
   }
@@ -19,7 +19,7 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
     redirect("/sign-in");
   }
 
-  const { amount, category, date, description, type } = parsedBody.data;
+  const { amount, category, date, name, type } = parsedBody.data;
   const categoryRow = await prisma.category.findFirst({
     where: {
       name: category,
@@ -33,13 +33,13 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
   // NOTE: don't make confusion between $transaction (prisma) and prisma.transaction (table)
 
   await prisma.$transaction([
-    // Create user transaction
-    prisma.transaction.create({
+    // Create user product
+    prisma.product.create({
       data: {
         userId: user.id,
         amount,
         date,
-        description: description || "",
+        name: name || "",
         type,
         category: categoryRow.name,
         categoryIcon: categoryRow.icon,

@@ -50,22 +50,16 @@ interface Props {
 
 const emptyData: any[] = [];
 
-type TransactionHistoryRow = GetTransactionHistoryResponseType[0];
+type InventoryRow = GetTransactionHistoryResponseType[0] & { name: string, dateAdded: string, strain: string, grower: string, quantity: number };
 
-const columns: ColumnDef<TransactionHistoryRow>[] = [
+const columns: ColumnDef<InventoryRow>[] = [
   {
-    accessorKey: "category",
+    accessorKey: "name",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Category" />
+      <DataTableColumnHeader column={column} title="Name" />
     ),
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
     cell: ({ row }) => (
-      <div className="flex gap-2 capitalize">
-        {row.original.categoryIcon}
-        <div className="capitalize">{row.original.category}</div>
-      </div>
+      <div className="capitalize">{row.original.name}</div>
     ),
   },
   {
@@ -78,10 +72,10 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
     ),
   },
   {
-    accessorKey: "date",
-    header: "Date",
+    accessorKey: "dateAdded",
+    header: "Date Added",
     cell: ({ row }) => {
-      const date = new Date(row.original.date);
+      const date = new Date(row.original.dateAdded);
       const formattedDate = date.toLocaleDateString("default", {
         timeZone: "UTC",
         year: "numeric",
@@ -92,34 +86,31 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
     },
   },
   {
-    accessorKey: "type",
+    accessorKey: "strain",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Type" />
+      <DataTableColumnHeader column={column} title="Strain" />
     ),
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
     cell: ({ row }) => (
-      <div
-        className={cn(
-          "capitalize rounded-lg text-center p-2",
-          row.original.type === "order" &&
-            "bg-emerald-400/10 text-emerald-500",
-          row.original.type === "returns" && "bg-red-400/10 text-red-500"
-        )}
-      >
-        {row.original.type}
-      </div>
+      <div className="capitalize">{row.original.strain}</div>
     ),
   },
   {
-    accessorKey: "amount",
+    accessorKey: "grower",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Amount" />
+      <DataTableColumnHeader column={column} title="Grower" />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.original.grower}</div>
+    ),
+  },
+  {
+    accessorKey: "quantity",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Quantity" />
     ),
     cell: ({ row }) => (
       <p className="text-md rounded-lg bg-gray-400/5 p-2 text-center font-medium">
-        {row.original.formattedAmount}
+        {row.original.quantity}
       </p>
     ),
   },
@@ -136,7 +127,7 @@ const csvConfig = mkConfig({
   useKeysAsHeaders: true,
 });
 
-function TransactionTable({ from, to }: Props) {
+function InventoryTable({ from, to }: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -211,13 +202,12 @@ function TransactionTable({ from, to }: Props) {
             className="ml-auto h-8 lg:flex"
             onClick={() => {
               const data = table.getFilteredRowModel().rows.map((row) => ({
-                category: row.original.category,
-                categoryIcon: row.original.categoryIcon,
+                name: row.original.name,
                 description: row.original.description,
-                type: row.original.type,
-                amount: row.original.amount,
-                formattedAmount: row.original.formattedAmount,
-                date: row.original.date,
+                dateAdded: row.original.dateAdded,
+                strain: row.original.strain,
+                grower: row.original.grower,
+                quantity: row.original.quantity,
               }));
               handleExportCSV(data);
             }}
@@ -302,9 +292,9 @@ function TransactionTable({ from, to }: Props) {
   );
 }
 
-export default TransactionTable;
+export default InventoryTable;
 
-function RowActions({ transaction }: { transaction: TransactionHistoryRow }) {
+function RowActions({ transaction }: { transaction: InventoryRow }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   return (

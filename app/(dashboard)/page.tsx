@@ -1,4 +1,5 @@
 import CreateTransactionDialog from "@/app/(dashboard)/_components/CreateTransactionDialog";
+import ImportProductDialog from "@/app/(dashboard)/_components/ImportProductDialog";
 import History from "@/app/(dashboard)/_components/History";
 import Overview from "@/app/(dashboard)/_components/Overview";
 import { Button } from "@/components/ui/button";
@@ -30,16 +31,27 @@ async function page() {
           <p className="text-3xl font-bold">Hello, {user.firstName}! 👋</p>
 
           <div className="flex items-center gap-3">
+          <ImportProductDialog
+              trigger={
+                <Button
+                  variant={"outline"}
+                  className="border-blue-500 bg-blue-950 text-white hover:bg-blue-700 hover:text-white"
+                >
+                  Import Product
+                </Button>
+              }
+              type="import"
+            />
             <CreateTransactionDialog
               trigger={
                 <Button
                   variant={"outline"}
                   className="border-emerald-500 bg-emerald-950 text-white hover:bg-emerald-700 hover:text-white"
                 >
-                  New income 🤑
+                  New Order
                 </Button>
               }
-              type="income"
+              type="order"
             />
 
             <CreateTransactionDialog
@@ -48,10 +60,10 @@ async function page() {
                   variant={"outline"}
                   className="border-rose-500 bg-rose-950 text-white hover:bg-rose-700 hover:text-white"
                 >
-                  New expense 😤
+                  New Return
                 </Button>
               }
-              type="expense"
+              type="returns"
             />
           </div>
         </div>
