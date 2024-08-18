@@ -117,19 +117,10 @@ function CreateCategoryDialog({ type, successCallback, trigger }: Props) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Create
-            <span
-              className={cn(
-                "m-1",
-                type === "order" ? "text-emerald-500" : "text-red-500"
-              )}
-            >
-              {type}
-            </span>
-            category
+            Create New Strain
           </DialogTitle>
           <DialogDescription>
-            Categories are used to group your transactions
+            Strains can be used to group your transactions.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -141,10 +132,10 @@ function CreateCategoryDialog({ type, successCallback, trigger }: Props) {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Category" {...field} />
+                    <Input placeholder="Enter Strain Name Here" {...field} />
                   </FormControl>
                   <FormDescription>
-                    This is how your category will appear in the app
+                    This is how your strain will appear
                   </FormDescription>
                 </FormItem>
               )}
@@ -194,7 +185,7 @@ function CreateCategoryDialog({ type, successCallback, trigger }: Props) {
                     </Popover>
                   </FormControl>
                   <FormDescription>
-                    This is how your category will appear in the app
+                   Choose an icon that will represent your strain
                   </FormDescription>
                 </FormItem>
               )}
