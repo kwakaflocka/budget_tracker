@@ -44,7 +44,7 @@ function CategoriesStats({ userSettings, from, to }: Props) {
       <SkeletonWrapper isLoading={statsQuery.isFetching}>
         <CategoriesCard
           formatter={formatter}
-          type="return"
+          type="returns"
           data={statsQuery.data || []}
         />
       </SkeletonWrapper>

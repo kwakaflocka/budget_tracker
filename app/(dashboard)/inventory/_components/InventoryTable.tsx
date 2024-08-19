@@ -183,6 +183,17 @@ function InventoryTable({ from, to }: Props) {
     const uniqueGrowers = new Set(growersMap.values());
     return Array.from(uniqueGrowers);
   }, [history.data]);
+  const strainsOptions = useMemo(() => {
+    const strainsMap = new Map();
+    history.data?.forEach((transaction) => {
+      strainsMap.set(transaction.strain, {
+        value: transaction.strain,
+        label: `${transaction.strainIcon} ${transaction.strain}`,
+      });
+    });
+    const uniqueStrains = new Set(strainsMap.values());
+    return Array.from(uniqueStrains);
+  }, [history.data]);
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-end justify-between gap-2 py-4">
@@ -217,6 +228,7 @@ function InventoryTable({ from, to }: Props) {
                 dateAdded: row.original.dateAdded,
                 strain: row.original.strain,
                 grower: row.original.grower,
+                category: row.original.category,
                 quantity: row.original.quantity,
               }));
               handleExportCSV(data);

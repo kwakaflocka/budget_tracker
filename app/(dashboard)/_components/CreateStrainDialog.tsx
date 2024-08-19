@@ -121,7 +121,7 @@ function CreateStrainDialog({ type, successCallback, trigger }: Props) {
             <span
               className={cn(
                 "m-1",
-                type === "income" ? "text-emerald-500" : "text-red-500"
+                type === "order" ? "text-emerald-500" : "text-red-500"
               )}
             >
               {type}

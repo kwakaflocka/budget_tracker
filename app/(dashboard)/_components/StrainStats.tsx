@@ -1,6 +1,6 @@
 "use client";
 
-import { GetStrainsStatsResponseType } from "@/app/api/stats/categories/route";
+import { GetStrainsStatsResponseType } from "@/app/api/stats/strains/route";
 import SkeletonWrapper from "@/components/SkeletonWrapper";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -19,10 +19,10 @@ interface Props {
 
 function StrainsStats({ userSettings, from, to }: Props) {
   const statsQuery = useQuery<GetStrainsStatsResponseType>({
-    queryKey: ["overview", "stats", "categories", from, to],
+    queryKey: ["overview", "stats", "strains", from, to],
     queryFn: () =>
       fetch(
-        `/api/stats/categories?from=${DateToUTCDate(from)}&to=${DateToUTCDate(
+        `/api/stats/strains?from=${DateToUTCDate(from)}&to=${DateToUTCDate(
           to
         )}`
       ).then((res) => res.json()),
