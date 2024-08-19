@@ -84,6 +84,21 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
     ),
   },
   {
+    accessorKey: "strain",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Strain" />
+    ),
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+    cell: ({ row }) => (
+      <div className="flex gap-2 capitalize">
+        {row.original.strain}
+        <div className="capitalize">{row.original.strain}</div>
+      </div>
+    ),
+  },
+  {
     accessorKey: "description",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Description" />
@@ -200,13 +215,25 @@ function TransactionTable({ from, to }: Props) {
   const growersOptions = useMemo(() => {
     const growersMap = new Map();
     history.data?.forEach((transaction) => {
-      growersMap.set(transaction.category, {
-        value: transaction.category,
-        label: `${transaction.categoryIcon} ${transaction.category}`,
+      growersMap.set(transaction.grower, {
+        value: transaction.grower,
+        label: `${transaction.growerIcon} ${transaction.grower}`,
       });
     });
     const uniqueGrowers = new Set(growersMap.values());
     return Array.from(uniqueGrowers);
+  }, [history.data]);
+
+  const strainsOptions = useMemo(() => {
+    const strainsMap = new Map();
+    history.data?.forEach((transaction) => {
+      strainsMap.set(transaction.strain, {
+        value: transaction.strain,
+        label: `${transaction.strainIcon} ${transaction.strain}`,
+      });
+    });
+    const uniqueStrains = new Set(strainsMap.values());
+    return Array.from(uniqueStrains);
   }, [history.data]);
   return (
     <div className="w-full">
@@ -223,6 +250,13 @@ function TransactionTable({ from, to }: Props) {
             <DataTableFacetedFilter
               title="Grower"
               column={table.getColumn("grower")}
+              options={categoriesOptions}
+            />
+          )}
+                    {table.getColumn("strain") && (
+            <DataTableFacetedFilter
+              title="Strain"
+              column={table.getColumn("strain")}
               options={categoriesOptions}
             />
           )}
@@ -254,6 +288,8 @@ function TransactionTable({ from, to }: Props) {
                 categoryIcon: row.original.categoryIcon,
                 grower: row.original.grower,
                 growerIcon: row.original.growerIcon,
+                strain: row.original.strain,
+                strainIcon: row.original.strainIcon,
                 description: row.original.description,
                 type: row.original.type,
                 amount: row.original.amount,

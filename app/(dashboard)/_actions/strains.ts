@@ -22,7 +22,7 @@ export async function CreateStrain(form: CreateStrainSchemaType) {
   }
 
   const { name, icon, type } = parsedBody.data;
-  return await prisma.category.create({
+  return await prisma.strain.create({
     data: {
       userId: user.id,
       name,
@@ -43,7 +43,7 @@ export async function DeleteStrain(form: DeleteStrainSchemaType) {
     redirect("/sign-in");
   }
 
-  return await prisma.category.delete({
+  return await prisma.strain.delete({
     where: {
       name_userId_type: {
         userId: user.id,
