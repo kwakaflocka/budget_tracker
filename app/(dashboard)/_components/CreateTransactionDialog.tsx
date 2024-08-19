@@ -30,6 +30,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import StrainPicker from "@/app/(dashboard)/_components/StrainPicker";
+import GrowerPicker from "@/app/(dashboard)/_components/GrowerPicker";
 import CategoryPicker from "@/app/(dashboard)/_components/CategoryPicker";
 import {
   Popover,
@@ -54,18 +56,29 @@ function CreateTransactionDialog({ trigger, type }: Props) {
   const form = useForm<CreateTransactionSchemaType>({
     resolver: zodResolver(CreateTransactionSchema),
     defaultValues: {
-      type: "order",
+      type,
       date: new Date(),
     },
   });
   const [open, setOpen] = useState(false);
+  const handleStrainChange = useCallback(
+    (value: string) => {
+      form.setValue("strain", value);
+    },
+    [form]
+  );
+  const handleGrowerChange = useCallback(
+    (value: string) => {
+      form.setValue("grower", value);
+    },
+    [form]
+  );
   const handleCategoryChange = useCallback(
     (value: string) => {
       form.setValue("category", value);
     },
     [form]
   );
-
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
@@ -80,7 +93,9 @@ function CreateTransactionDialog({ trigger, type }: Props) {
         description: "",
         amount: 0,
         date: new Date(),
-        category: undefined,
+        strain: undefined,
+        grower: undefined,
+        category: undefined
       });
 
       // After creating a transaction, we need to invalidate the overview query which will refetch data in the homepage
@@ -110,7 +125,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Create a new
+            Create a new{" "}
             <span
               className={cn(
                 "m-1",
@@ -154,9 +169,27 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                 </FormItem>
               )}
             />
-
             <div className="flex items-center justify-between gap-2">
               <FormField
+                control={form.control}
+                name="grower"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Grower</FormLabel>
+                    <FormControl>
+                      <GrowerPicker
+                        type={type}
+                        onChange={handleGrowerChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Select a grower for this transaction
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+
+<FormField
                 control={form.control}
                 name="category"
                 render={({ field }) => (
@@ -170,6 +203,26 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                     </FormControl>
                     <FormDescription>
                       Select a category for this transaction
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <FormField
+                control={form.control}
+                name="strain"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Strain</FormLabel>
+                    <FormControl>
+                      <StrainPicker
+                        type={type}
+                        onChange={handleStrainChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Select a strain for this transaction
                     </FormDescription>
                   </FormItem>
                 )}

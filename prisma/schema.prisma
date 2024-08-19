@@ -1,3 +1,9 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,73 +15,73 @@ datasource db {
 
 model UserSettings {
   userId   String @id
-  currency String
+  Unit     String @default("USD")
+  currency String @default("USD")
 }
 
-model Category {
-  createdAt DateTime @default(now())
+model Strain {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
   name      String
   userId    String
   icon      String
-  type      String @default("ORDER") // Default type is "ORDER", but it can be "RETURN" as well
+  type      String    @default("income")
+  products  Product[] @relation("StrainToProduct")
 
   @@unique([name, userId, type])
 }
 
-model Strain {
+model Category {
   id        String   @id @default(uuid())
-  name      String
-  type      String   // e.g., Indica, Sativa, Hybrid
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  products  Product[]
+  name      String
+  userId    String
+  icon      String
+  type      String   @default("income")
 
-  @@unique([name, type])
+  @@unique([name, userId, type])
 }
 
 model Grower {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
   name      String
-  location  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  products  Product[]
+  userId    String
+  icon      String
+  type      String    @default("income")
+  products  Product[] @relation("GrowerToProduct")
+
+  @@unique([name, userId, type])
 }
 
 model Transaction {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updateAt  DateTime @default(now())
-
-  amount      Float
-  description String
-  date        DateTime
-  userId      String
-  type        String   @default("ORDER") // Default type is "ORDER", but it can be "RETURN" as well
-
+  id           String   @id @default(uuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  amount       Float
+  description  String
+  date         DateTime
+  userId       String
+  type         String   @default("income")
+  strain       String
+  strainIcon   String
   category     String
   categoryIcon String
+  grower       String
+  growerIcon   String
   productId    String?
   product      Product? @relation(fields: [productId], references: [id])
 }
 
 model Product {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updateAt  DateTime @default(now())
-
-  amount      Float
-  description Float?
-  date        DateTime
-  userId      String
-  type        String   @default("IMPORT") // Default type is "IMPORT", but it can be "RETURN" as well
-
-  category     String
-  categoryIcon String
+  id           String        @id @default(uuid())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now())
+  name         String        @unique
   strainId     String?
-  strain       Strain?  @relation(fields: [strainId], references: [id])
+  strain       Strain?       @relation("StrainToProduct", fields: [strainId], references: [id])
   growerId     String?
-  grower       Grower?  @relation(fields: [growerId], references: [id])
+  grower       Grower?       @relation("GrowerToProduct", fields: [growerId], references: [id])
   transactions Transaction[]
 }
 
@@ -84,18 +90,18 @@ model MonthHistory {
   day     Int
   month   Int
   year    Int
-  order   Float
-  returns Float
+  income  Float
+  expense Float
 
-  @@id([userId, day, month, year])
+  @@id([day, month, year, userId])
 }
 
 model YearHistory {
   userId  String
   month   Int
   year    Int
-  order   Float
-  returns Float
+  income  Float
+  expense Float
 
   @@id([month, year, userId])
 }

@@ -172,16 +172,26 @@ function InventoryTable({ from, to }: Props) {
     const uniqueCategories = new Set(categoriesMap.values());
     return Array.from(uniqueCategories);
   }, [history.data]);
-
+  const growersOptions = useMemo(() => {
+    const growersMap = new Map();
+    history.data?.forEach((transaction) => {
+      growersMap.set(transaction.grower, {
+        value: transaction.grower,
+        label: `${transaction.growerIcon} ${transaction.grower}`,
+      });
+    });
+    const uniqueGrowers = new Set(growersMap.values());
+    return Array.from(uniqueGrowers);
+  }, [history.data]);
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-end justify-between gap-2 py-4">
         <div className="flex gap-2">
-          {table.getColumn("category") && (
+          {table.getColumn("grower") && (
             <DataTableFacetedFilter
-              title="Category"
-              column={table.getColumn("category")}
-              options={categoriesOptions}
+              title="Grower"
+              column={table.getColumn("grower")}
+              options={growersOptions}
             />
           )}
           {table.getColumn("type") && (

@@ -5,6 +5,8 @@ export const CreateTransactionSchema = z.object({
   description: z.string().optional(),
   date: z.coerce.date(),
   category: z.string(),
+  grower: z.string(),
+  strain: z.string(),
   type: z.union([z.literal("order"), z.literal("returns")]),
 });
 

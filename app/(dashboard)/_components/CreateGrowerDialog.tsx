@@ -28,9 +28,9 @@ import {
 import { TransactionType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
-  CreateStrainSchema,
-  CreateStrainSchemaType,
-} from "@/schema/strains";
+  CreateGrowerSchema,
+  CreateGrowerSchemaType,
+} from "@/schema/growers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleOff, Loader2, PlusSquare } from "lucide-react";
 import React, { ReactNode, useCallback, useState } from "react";
@@ -38,21 +38,21 @@ import { useForm } from "react-hook-form";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateStrain } from "@/app/(dashboard)/_actions/strains";
-import { Strain } from "@prisma/client";
+import { CreateGrower } from "@/app/(dashboard)/_actions/growers";
+import { Grower } from "@prisma/client";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
 
 interface Props {
   type: TransactionType;
-  successCallback: (strain: Strain) => void;
+  successCallback: (grower: Grower) => void;
   trigger?: ReactNode;
 }
 
-function CreateStrainDialog({ type, successCallback, trigger }: Props) {
+function CreateGrowerDialog({ type, successCallback, trigger }: Props) {
   const [open, setOpen] = useState(false);
-  const form = useForm<CreateStrainSchemaType>({
-    resolver: zodResolver(CreateStrainSchema),
+  const form = useForm<CreateGrowerSchemaType>({
+    resolver: zodResolver(CreateGrowerSchema),
     defaultValues: {
       type,
     },
@@ -62,37 +62,37 @@ function CreateStrainDialog({ type, successCallback, trigger }: Props) {
   const theme = useTheme();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: CreateStrain,
-    onSuccess: async (data: Strain) => {
+    mutationFn: CreateGrower,
+    onSuccess: async (data: Grower) => {
       form.reset({
         name: "",
         icon: "",
         type,
       });
 
-      toast.success(`Strain ${data.name} created successfully 🎉`, {
-        id: "create-strain",
+      toast.success(`Grower ${data.name} created successfully 🎉`, {
+        id: "create-grower",
       });
 
       successCallback(data);
 
       await queryClient.invalidateQueries({
-        queryKey: ["strains"],
+        queryKey: ["growers"],
       });
 
       setOpen((prev) => !prev);
     },
     onError: () => {
       toast.error("Something went wrong", {
-        id: "create-strain",
+        id: "create-grower",
       });
     },
   });
 
   const onSubmit = useCallback(
-    (values: CreateStrainSchemaType) => {
-      toast.loading("Creating strain...", {
-        id: "create-strain",
+    (values: CreateGrowerSchemaType) => {
+      toast.loading("Creating grower...", {
+        id: "create-grower",
       });
       mutate(values);
     },
@@ -121,15 +121,15 @@ function CreateStrainDialog({ type, successCallback, trigger }: Props) {
             <span
               className={cn(
                 "m-1",
-                type === "income" ? "text-emerald-500" : "text-red-500"
+                type === "order" ? "text-emerald-500" : "text-red-500"
               )}
             >
               {type}
             </span>
-            strain
+            grower
           </DialogTitle>
           <DialogDescription>
-            Strains are used to group your transactions
+            Growers are used to group your transactions
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -141,10 +141,10 @@ function CreateStrainDialog({ type, successCallback, trigger }: Props) {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Strain" {...field} />
+                    <Input placeholder="Grower" {...field} />
                   </FormControl>
                   <FormDescription>
-                    This is how your strain will appear in the app
+                    This is how your grower will appear in the app
                   </FormDescription>
                 </FormItem>
               )}
@@ -194,7 +194,7 @@ function CreateStrainDialog({ type, successCallback, trigger }: Props) {
                     </Popover>
                   </FormControl>
                   <FormDescription>
-                    This is how your strain will appear in the app
+                    This is how your grower will appear in the app
                   </FormDescription>
                 </FormItem>
               )}
@@ -223,4 +223,4 @@ function CreateStrainDialog({ type, successCallback, trigger }: Props) {
   );
 }
 
-export default CreateStrainDialog;
+export default CreateGrowerDialog;

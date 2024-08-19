@@ -69,6 +69,21 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
     ),
   },
   {
+    accessorKey: "grower",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Grower" />
+    ),
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+    cell: ({ row }) => (
+      <div className="flex gap-2 capitalize">
+        {row.original.grower}
+        <div className="capitalize">{row.original.grower}</div>
+      </div>
+    ),
+  },
+  {
     accessorKey: "description",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Description" />
@@ -182,6 +197,17 @@ function TransactionTable({ from, to }: Props) {
     return Array.from(uniqueCategories);
   }, [history.data]);
 
+  const growersOptions = useMemo(() => {
+    const growersMap = new Map();
+    history.data?.forEach((transaction) => {
+      growersMap.set(transaction.category, {
+        value: transaction.category,
+        label: `${transaction.categoryIcon} ${transaction.category}`,
+      });
+    });
+    const uniqueGrowers = new Set(growersMap.values());
+    return Array.from(uniqueGrowers);
+  }, [history.data]);
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-end justify-between gap-2 py-4">
@@ -193,6 +219,14 @@ function TransactionTable({ from, to }: Props) {
               options={categoriesOptions}
             />
           )}
+          {table.getColumn("grower") && (
+            <DataTableFacetedFilter
+              title="Grower"
+              column={table.getColumn("grower")}
+              options={categoriesOptions}
+            />
+          )}
+          
           {table.getColumn("type") && (
             <DataTableFacetedFilter
               title="Type"
@@ -218,6 +252,8 @@ function TransactionTable({ from, to }: Props) {
               const data = table.getFilteredRowModel().rows.map((row) => ({
                 category: row.original.category,
                 categoryIcon: row.original.categoryIcon,
+                grower: row.original.grower,
+                growerIcon: row.original.growerIcon,
                 description: row.original.description,
                 type: row.original.type,
                 amount: row.original.amount,

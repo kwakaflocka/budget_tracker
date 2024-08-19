@@ -19,7 +19,7 @@ export async function CreateProduct(form: CreateProductSchemaType) {
     redirect("/sign-in");
   }
 
-  const { amount, category, date, name, type } = parsedBody.data;
+  const { amount, category, grower, strain, date, name, type } = parsedBody.data;
   const categoryRow = await prisma.category.findFirst({
     where: {
       name: category,
@@ -28,6 +28,16 @@ export async function CreateProduct(form: CreateProductSchemaType) {
 
   if (!categoryRow) {
     throw new Error("category not found");
+  }
+
+  const growerRow = await prisma.grower.findFirst({
+    where: {
+      name: grower,
+    },
+  });
+
+  if (!growerRow) {
+    throw new Error("grower not found");
   }
 
   // NOTE: don't make confusion between $transaction (prisma) and prisma.transaction (table)
@@ -43,6 +53,10 @@ export async function CreateProduct(form: CreateProductSchemaType) {
         type,
         category: categoryRow.name,
         categoryIcon: categoryRow.icon,
+        grower: growerRow.name,
+        growerIcon: growerRow.icon,
+        strain: strainRow.name,
+        strainIcon: strainRow.icon
       },
     }),
 
