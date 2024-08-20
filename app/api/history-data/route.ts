@@ -123,14 +123,9 @@ async function getMonthHistoryData(
       year,
       month,
     },
-    select: {
-      day: true,
-      _sum: {
-        select: {
-          returns: true,
-          order: true,
-        },
-      },
+    _sum: {
+      returns: true,
+      order: true,
     },
     orderBy: [
       {

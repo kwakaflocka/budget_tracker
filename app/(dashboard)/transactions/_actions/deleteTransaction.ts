@@ -40,13 +40,13 @@ export async function DeleteTransaction(id: string) {
         },
       },
       data: {
-        ...(transaction.type === "expense" && {
-          expense: {
+        ...(transaction.type === "returns" && {
+          returns: {
             decrement: transaction.amount,
           },
         }),
-        ...(transaction.type === "income" && {
-          income: {
+        ...(transaction.type === "order" && {
+          order: {
             decrement: transaction.amount,
           },
         }),
@@ -62,13 +62,13 @@ export async function DeleteTransaction(id: string) {
         },
       },
       data: {
-        ...(transaction.type === "expense" && {
-          expense: {
+        ...(transaction.type === "returns" && {
+          returns: {
             decrement: transaction.amount,
           },
         }),
-        ...(transaction.type === "income" && {
-          income: {
+        ...(transaction.type === "order" && {
+          order: {
             decrement: transaction.amount,
           },
         }),

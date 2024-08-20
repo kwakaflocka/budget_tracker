@@ -189,7 +189,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                 )}
               />
 
-<FormField
+              <FormField
                 control={form.control}
                 name="category"
                 render={({ field }) => (

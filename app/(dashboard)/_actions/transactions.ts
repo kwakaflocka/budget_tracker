@@ -68,8 +68,6 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
       date,
       type,
       userId: user.id,
-      returns: type === "returns" ? amount : 0,
-      order: type === "order" ? amount : 0,
     },
   })
   

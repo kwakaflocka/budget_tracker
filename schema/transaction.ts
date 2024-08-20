@@ -9,7 +9,7 @@ export const CreateTransactionSchema = z.object({
   grower: z.string(),
   growerIcon: z.string().optional(),
   strain: z.string(),
-  strainIcon: z.string(),
+  strainIcon: z.string().optional(),
   type: z.union([z.literal("order"), z.literal("returns")]),
 });
 

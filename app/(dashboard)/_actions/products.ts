@@ -39,7 +39,15 @@ export async function CreateProduct(form: CreateProductSchemaType) {
   if (!growerRow) {
     throw new Error("grower not found");
   }
+  const strainRow = await prisma.strain.findFirst({
+    where: {
+      name: strain,
+    },
+  });
 
+  if (!growerRow) {
+    throw new Error("grower not found");
+  }
   // NOTE: don't make confusion between $transaction (prisma) and prisma.transaction (table)
 
   await prisma.$transaction([

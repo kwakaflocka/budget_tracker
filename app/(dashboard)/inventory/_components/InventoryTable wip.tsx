@@ -14,7 +14,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { GetTransactionHistoryResponseType } from "@/app/api/transactions-history/route";
+import { GetInventoryHistoryResponseType } from "@/app/api/inventorys-history/route";
 
 import {
   Table,
@@ -41,7 +41,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import DeleteTransactionDialog from "@/app/(dashboard)/transactions/_components/DeleteTransactionDialog";
+import DeleteInventoryDialog from "@/app/(dashboard)/inventorys/_components/DeleteInventoryDialog";
 
 interface Props {
   from: Date;
@@ -50,52 +50,16 @@ interface Props {
 
 const emptyData: any[] = [];
 
-type TransactionHistoryRow = GetTransactionHistoryResponseType[0];
+type InventoryRow = GetInventoryHistoryResponseType[0] & { name: string, dateAdded: string, strain: string, grower: string, quantity: number };
 
-const columns: ColumnDef<TransactionHistoryRow>[] = [
+const columns: ColumnDef<InventoryRow>[] = [
   {
-    accessorKey: "category",
+    accessorKey: "name",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Category" />
+      <DataTableColumnHeader column={column} title="Name" />
     ),
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
     cell: ({ row }) => (
-      <div className="flex gap-2 capitalize">
-        {row.original.categoryIcon}
-        <div className="capitalize">{row.original.category}</div>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "grower",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Grower" />
-    ),
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-    cell: ({ row }) => (
-      <div className="flex gap-2 capitalize">
-        {row.original.grower}
-        <div className="capitalize">{row.original.grower}</div>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "strain",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Strain" />
-    ),
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-    cell: ({ row }) => (
-      <div className="flex gap-2 capitalize">
-        {row.original.strain}
-        <div className="capitalize">{row.original.strain}</div>
-      </div>
+      <div className="capitalize">{row.original.name}</div>
     ),
   },
   {
@@ -108,10 +72,10 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
     ),
   },
   {
-    accessorKey: "date",
-    header: "Date",
+    accessorKey: "dateAdded",
+    header: "Date Added",
     cell: ({ row }) => {
-      const date = new Date(row.original.date);
+      const date = new Date(row.original.dateAdded);
       const formattedDate = date.toLocaleDateString("default", {
         timeZone: "UTC",
         year: "numeric",
@@ -122,41 +86,38 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
     },
   },
   {
-    accessorKey: "type",
+    accessorKey: "strain",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Type" />
+      <DataTableColumnHeader column={column} title="Strain" />
     ),
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
     cell: ({ row }) => (
-      <div
-        className={cn(
-          "capitalize rounded-lg text-center p-2",
-          row.original.type === "order" &&
-            "bg-emerald-400/10 text-emerald-500",
-          row.original.type === "returns" && "bg-red-400/10 text-red-500"
-        )}
-      >
-        {row.original.type === "order" ? "ordered" : "returned"}
-      </div>
+      <div className="capitalize">{row.original.strain}</div>
     ),
   },
   {
-    accessorKey: "amount",
+    accessorKey: "grower",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Amount" />
+      <DataTableColumnHeader column={column} title="Grower" />
+    ),
+    cell: ({ row }) => (
+      <div className="capitalize">{row.original.grower}</div>
+    ),
+  },
+  {
+    accessorKey: "quantity",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Quantity" />
     ),
     cell: ({ row }) => (
       <p className="text-md rounded-lg bg-gray-400/5 p-2 text-center font-medium">
-        {row.original.formattedAmount}
+        {row.original.quantity}
       </p>
     ),
   },
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => <RowActions transaction={row.original} />,
+    cell: ({ row }) => <RowActions inventory={row.original} />,
   },
 ];
 
@@ -166,15 +127,15 @@ const csvConfig = mkConfig({
   useKeysAsHeaders: true,
 });
 
-function TransactionTable({ from, to }: Props) {
+function InventoryTable({ from, to }: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const history = useQuery<GetTransactionHistoryResponseType>({
-    queryKey: ["transactions", "history", from, to],
+  const history = useQuery<GetInventoryHistoryResponseType>({
+    queryKey: ["inventorys", "history", from, to],
     queryFn: () =>
       fetch(
-        `/api/transactions-history?from=${DateToUTCDate(
+        `/api/inventorys-history?from=${DateToUTCDate(
           from
         )}&to=${DateToUTCDate(to)}`
       ).then((res) => res.json()),
@@ -202,34 +163,32 @@ function TransactionTable({ from, to }: Props) {
 
   const categoriesOptions = useMemo(() => {
     const categoriesMap = new Map();
-    history.data?.forEach((transaction) => {
-      categoriesMap.set(transaction.category, {
-        value: transaction.category,
-        label: `${transaction.categoryIcon} ${transaction.category}`,
+    history.data?.forEach((inventory) => {
+      categoriesMap.set(inventory.category, {
+        value: inventory.category,
+        label: `${inventory.categoryIcon} ${inventory.category}`,
       });
     });
     const uniqueCategories = new Set(categoriesMap.values());
     return Array.from(uniqueCategories);
   }, [history.data]);
-
   const growersOptions = useMemo(() => {
     const growersMap = new Map();
-    history.data?.forEach((transaction) => {
-      growersMap.set(transaction.grower, {
-        value: transaction.grower,
-        label: `${transaction.growerIcon} ${transaction.grower}`,
+    history.data?.forEach((inventory) => {
+      growersMap.set(inventory.grower, {
+        value: inventory.grower,
+        label: `${inventory.growerIcon} ${inventory.grower}`,
       });
     });
     const uniqueGrowers = new Set(growersMap.values());
     return Array.from(uniqueGrowers);
   }, [history.data]);
-
   const strainsOptions = useMemo(() => {
     const strainsMap = new Map();
-    history.data?.forEach((transaction) => {
-      strainsMap.set(transaction.strain, {
-        value: transaction.strain,
-        label: `${transaction.strainIcon} ${transaction.strain}`,
+    history.data?.forEach((inventory) => {
+      strainsMap.set(inventory.strain, {
+        value: inventory.strain,
+        label: `${inventory.strainIcon} ${inventory.strain}`,
       });
     });
     const uniqueStrains = new Set(strainsMap.values());
@@ -239,13 +198,6 @@ function TransactionTable({ from, to }: Props) {
     <div className="w-full">
       <div className="flex flex-wrap items-end justify-between gap-2 py-4">
         <div className="flex gap-2">
-          {table.getColumn("category") && (
-            <DataTableFacetedFilter
-              title="Category"
-              column={table.getColumn("category")}
-              options={categoriesOptions}
-            />
-          )}
           {table.getColumn("grower") && (
             <DataTableFacetedFilter
               title="Grower"
@@ -253,14 +205,6 @@ function TransactionTable({ from, to }: Props) {
               options={growersOptions}
             />
           )}
-                    {table.getColumn("strain") && (
-            <DataTableFacetedFilter
-              title="Strain"
-              column={table.getColumn("strain")}
-              options={strainsOptions}
-            />
-          )}
-          
           {table.getColumn("type") && (
             <DataTableFacetedFilter
               title="Type"
@@ -279,17 +223,13 @@ function TransactionTable({ from, to }: Props) {
             className="ml-auto h-8 lg:flex"
             onClick={() => {
               const data = table.getFilteredRowModel().rows.map((row) => ({
-                category: row.original.category,
-                categoryIcon: row.original.categoryIcon,
-                grower: row.original.grower,
-                growerIcon: row.original.growerIcon,
-                strain: row.original.strain,
-                strainIcon: row.original.strainIcon,
+                name: row.original.name,
                 description: row.original.description,
-                type: row.original.type,
-                amount: row.original.amount,
-                formattedAmount: row.original.formattedAmount,
-                date: row.original.date,
+                dateAdded: row.original.dateAdded,
+                strain: row.original.strain,
+                grower: row.original.grower,
+                category: row.original.category,
+                quantity: row.original.quantity,
               }));
               handleExportCSV(data);
             }}
@@ -374,17 +314,17 @@ function TransactionTable({ from, to }: Props) {
   );
 }
 
-export default TransactionTable;
+export default InventoryTable;
 
-function RowActions({ transaction }: { transaction: TransactionHistoryRow }) {
+function RowActions({ inventory }: { inventory: InventoryRow }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   return (
     <>
-      <DeleteTransactionDialog
+      <DeleteInventoryDialog
         open={showDeleteDialog}
         setOpen={setShowDeleteDialog}
-        transactionId={transaction.id}
+        inventoryId={inventory.id}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
