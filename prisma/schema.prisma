@@ -38,6 +38,7 @@ model Category {
   userId    String
   icon      String
   type      String   @default("returns")
+  products  Product[] @relation("CategoryToProduct")
 
   @@unique([name, userId, type])
 }
@@ -82,6 +83,9 @@ model Product {
   strain       Strain?       @relation("StrainToProduct", fields: [strainId], references: [id])
   growerId     String?
   grower       Grower?       @relation("GrowerToProduct", fields: [growerId], references: [id])
+  categoryId   String?
+  category       Category?       @relation("CategoryToProduct", fields: [categoryId], references: [id])
+ 
   transactions Transaction[]
 }
 

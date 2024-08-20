@@ -9,12 +9,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ProductType } from "@/lib/types";
+import { TransactionType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
-  CreateProductSchema,
-  CreateProductSchemaType,
-} from "@/schema/product";
+  CreateTransactionSchema,
+  CreateTransactionSchemaType,
+} from "@/schema/transaction";
 import { ReactNode, useCallback, useState } from "react";
 
 import React from "react";
@@ -43,65 +43,62 @@ import { format } from "date-fns";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateProduct } from "@/app/(dashboard)/_actions/products";
+import { CreateTransaction } from "@/app/(dashboard)/_actions/transactions";
 import { toast } from "sonner";
 import { DateToUTCDate } from "@/lib/helpers";
 
 interface Props {
   trigger: ReactNode;
-  type: ProductType;
+  type: TransactionType;
 }
 
-function ImportProductDialog({ trigger, type }: Props) {
-  const form = useForm<CreateProductSchemaType>({
-    resolver: zodResolver(CreateProductSchema),
+function CreateTransactionDialog({ trigger, type }: Props) {
+  const form = useForm<CreateTransactionSchemaType>({
+    resolver: zodResolver(CreateTransactionSchema),
     defaultValues: {
-      type: type, // TODO: should be removed
+      type,
       date: new Date(),
     },
   });
   const [open, setOpen] = useState(false);
-  const handleCategoryChange = useCallback(
-    (value: string) => {
-      form.setValue("category", value);
-    },
-    [form]
-  );
-
   const handleStrainChange = useCallback(
     (value: string) => {
       form.setValue("strain", value);
     },
     [form]
   );
-
   const handleGrowerChange = useCallback(
     (value: string) => {
       form.setValue("grower", value);
     },
     [form]
   );
-
+  const handleCategoryChange = useCallback(
+    (value: string) => {
+      form.setValue("category", value);
+    },
+    [form]
+  );
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: CreateProduct,
+    mutationFn: CreateTransaction,
     onSuccess: () => {
-      toast.success("Product imported successfully 🎉", {
-        id: "import-product",
+      toast.success("Transaction created successfully 🎉", {
+        id: "create-transaction",
       });
 
       form.reset({
         type,
-        name: "",
+        description: "",
         amount: 0,
         date: new Date(),
-        category: undefined,
+        strain: undefined,
         grower: undefined,
-        strain: undefined
+        category: undefined
       });
 
-      // After importing a product, we need to invalidate the overview query which will refetch data in the homepage
+      // After creating a transaction, we need to invalidate the overview query which will refetch data in the homepage
       queryClient.invalidateQueries({
         queryKey: ["overview"],
       });
@@ -111,8 +108,8 @@ function ImportProductDialog({ trigger, type }: Props) {
   });
 
   const onSubmit = useCallback(
-    (values: CreateProductSchemaType) => {
-      toast.loading("Importing product...", { id: "import-product" });
+    (values: CreateTransactionSchemaType) => {
+      toast.loading("Creating transaction...", { id: "create-transaction" });
 
       mutate({
         ...values,
@@ -127,24 +124,71 @@ function ImportProductDialog({ trigger, type }: Props) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New Product Import</DialogTitle>
+          <DialogTitle>
+            Create a new{" "}
+            <span
+              className={cn(
+                "m-1",
+                type === "order" ? "text-emerald-500" : "text-red-500"
+              )}
+            >Product
+            </span>
+            
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
-              name="name"
+              name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Input defaultValue={""} {...field} />
                   </FormControl>
-                  <FormDescription>Product name (required)</FormDescription>
+                  <FormDescription>
+                    Transaction description (optional)
+                  </FormDescription>
                 </FormItem>
               )}
             />
-             <FormField
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount</FormLabel>
+                  <FormControl>
+                    <Input defaultValue={0} type="number" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Transaction amount (required)
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+            <div className="flex items-center justify-between gap-2">
+              <FormField
+                control={form.control}
+                name="grower"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Grower</FormLabel>
+                    <FormControl>
+                      <GrowerPicker
+                        type={type}
+                        onChange={handleGrowerChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Select a grower for this transaction
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
                 control={form.control}
                 name="category"
                 render={({ field }) => (
@@ -162,26 +206,33 @@ function ImportProductDialog({ trigger, type }: Props) {
                   </FormItem>
                 )}
               />
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
-                  <FormControl>
-                    <Input defaultValue={0} type="number" {...field} />
-                  </FormControl>
-                  <FormDescription>Product amount (required)</FormDescription>
-                </FormItem>
-              )}
-            />
+            </div>
             <div className="flex items-center justify-between gap-2">
+              <FormField
+                control={form.control}
+                name="strain"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Strain</FormLabel>
+                    <FormControl>
+                      <StrainPicker
+                        type={type}
+                        onChange={handleStrainChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Select a strain for this transaction
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Import date</FormLabel>
+                    <FormLabel>Transaction date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -192,7 +243,11 @@ function ImportProductDialog({ trigger, type }: Props) {
                               !field.value && "text-muted-foreground"
                             )}
                           >
-                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -215,34 +270,6 @@ function ImportProductDialog({ trigger, type }: Props) {
                 )}
               />
             </div>
-            <div className="flex items-center justify-between gap-2">
-              <FormField
-                control={form.control}
-                name="strain"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Strain</FormLabel>
-                    <FormControl>
-                      <StrainPicker type={type} onChange={handleStrainChange} />
-                    </FormControl>
-                    <FormDescription>Select a strain for this product</FormDescription>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="grower"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Grower</FormLabel>
-                    <FormControl>
-                      <GrowerPicker type={type} onChange={handleGrowerChange} />
-                    </FormControl>
-                    <FormDescription>Select a grower for this product</FormDescription>
-                  </FormItem>
-                )}
-              />
-            </div>
           </form>
         </Form>
         <DialogFooter>
@@ -258,7 +285,7 @@ function ImportProductDialog({ trigger, type }: Props) {
             </Button>
           </DialogClose>
           <Button onClick={form.handleSubmit(onSubmit)} disabled={isPending}>
-            {!isPending && "Import"}
+            {!isPending && "Create"}
             {isPending && <Loader2 className="animate-spin" />}
           </Button>
         </DialogFooter>
@@ -267,4 +294,4 @@ function ImportProductDialog({ trigger, type }: Props) {
   );
 }
 
-export default ImportProductDialog;
+export default CreateTransactionDialog;

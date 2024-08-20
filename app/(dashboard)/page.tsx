@@ -40,7 +40,7 @@ async function page() {
                   Import Product
                 </Button>
               }
-              type="import"
+              type="order"
             />
             <CreateTransactionDialog
               trigger={
