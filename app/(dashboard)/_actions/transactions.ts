@@ -21,32 +21,110 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
 
   const { amount, category, grower, strain, date, description, type } = parsedBody.data;
 
+  const categoryRow = await prisma.category.findFirst({
+    where: {
+      userId: user.id,
+      name: category,
+    },
+  });
+
+  if (!categoryRow) {
+    throw new Error("category not found");
+  }
+
+  const growerRow = await prisma.grower.findFirst({
+    where: {
+      userId: user.id,
+      name: grower,
+    },
+  });
+
+  if (!growerRow) {
+    throw new Error("grower not found");
+  }
+
+  const strainRow = await prisma.strain.findFirst({
+    where: {
+      userId: user.id,
+      name: strain,
+    },
+  });
+
+  if (!strainRow) {
+    throw new Error("strain not found");
+  }
+
+
   await prisma.transaction.create({
     data: {
       amount,
-      category,
-      strain,
-      grower,
+      category: categoryRow.name,
+      categoryIcon: categoryRow.icon,
+      grower: growerRow.name,
+      growerIcon: growerRow.icon,
+      strain: strainRow.name,
+      strainIcon: strainRow.icon,
+      description: description || "",
       date,
       type,
       userId: user.id,
       returns: type === "returns" ? amount : 0,
-      expense: type === "expense" ? amount : 0,
       order: type === "order" ? amount : 0,
     },
-    update: {
-      amount,
-      category,
-      strain,
-      grower,
-      date,
-      description,
-      type,
+  })
+  
+  // Update month aggregate table
+  await prisma.monthHistory.upsert({
+    where: {
+      day_month_year_userId: {
+        userId: user.id,
+        day: date.getUTCDate(),
+        month: date.getUTCMonth(),
+        year: date.getUTCFullYear(),
+      },
+    },
+    create: {
       userId: user.id,
       day: date.getUTCDate(),
       month: date.getUTCMonth(),
       year: date.getUTCFullYear(),
-      returns: type === "returns" ? amount : 0
+      returns: type === "returns" ? amount : 0,
+      order: type === "order" ? amount : 0,
     },
-  });
+    update: {
+      returns: {
+        increment: type === "returns" ? amount : 0,
+      },
+      order: {
+        increment: type === "order" ? amount : 0,
+      },
+    },
+  })
+  
+  // Update year aggreate
+  await prisma.yearHistory.upsert({
+    where: {
+      month_year_userId: {
+        userId: user.id,
+        month: date.getUTCMonth(),
+        year: date.getUTCFullYear(),
+      },
+    },
+    create: {
+      userId: user.id,
+      month: date.getUTCMonth(),
+      year: date.getUTCFullYear(),
+      returns: type === "returns" ? amount : 0,
+      order: type === "order" ? amount : 0,
+    },
+    update: {
+      returns: {
+        increment: type === "returns" ? amount : 0,
+      },
+      order: {
+        increment: type === "order" ? amount : 0,
+      },
+    },
+  })
+
 }

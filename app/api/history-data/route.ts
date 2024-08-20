@@ -123,9 +123,14 @@ async function getMonthHistoryData(
       year,
       month,
     },
-    _sum: {
-      returns: true,
-      order: true,
+    select: {
+      day: true,
+      _sum: {
+        select: {
+          returns: true,
+          order: true,
+        },
+      },
     },
     orderBy: [
       {
@@ -137,8 +142,7 @@ async function getMonthHistoryData(
   if (!result || result.length === 0) return [];
 
   const history: HistoryData[] = [];
-  const daysInMonth = getDaysInMonth(new Date(year, month));
-  for (let i = 1; i <= daysInMonth; i++) {
+  for (let i = 1; i <= new Date(year, month, 0).getDate(); i++) {
     let returns = 0;
     let order = 0;
 
@@ -149,11 +153,11 @@ async function getMonthHistoryData(
     }
 
     history.push({
-      returns,
-      order,
       year,
       month,
       day: i,
+      returns,
+      order,
     });
   }
 

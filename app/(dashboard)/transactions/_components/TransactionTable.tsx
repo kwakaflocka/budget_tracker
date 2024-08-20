@@ -266,13 +266,8 @@ function TransactionTable({ from, to }: Props) {
               title="Type"
               column={table.getColumn("type")}
               options={[
-<<<<<<< Updated upstream
                 { label: "order", value: "order" },
                 { label: "returns", value: "returns" },
-=======
-                { label: "Ordered", value: "income" },
-                { label: "Returned", value: "expense" },
->>>>>>> Stashed changes
               ]}
             />
           )}

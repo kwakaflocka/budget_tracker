@@ -25,7 +25,7 @@ model Strain {
   name      String
   userId    String
   icon      String
-  type      String    @default("income")
+  type      String    @default("returns")
   products  Product[] @relation("StrainToProduct")
 
   @@unique([name, userId, type])
@@ -37,7 +37,7 @@ model Category {
   name      String
   userId    String
   icon      String
-  type      String   @default("income")
+  type      String   @default("returns")
 
   @@unique([name, userId, type])
 }
@@ -48,7 +48,7 @@ model Grower {
   name      String
   userId    String
   icon      String
-  type      String    @default("income")
+  type      String    @default("returns")
   products  Product[] @relation("GrowerToProduct")
 
   @@unique([name, userId, type])
@@ -62,7 +62,7 @@ model Transaction {
   description  String
   date         DateTime
   userId       String
-  type         String   @default("income")
+  type         String   @default("returns")
   strain       String
   strainIcon   String
   category     String
@@ -90,8 +90,8 @@ model MonthHistory {
   day     Int
   month   Int
   year    Int
-  income  Float
-  expense Float
+  order  Float
+  returns Float
 
   @@id([day, month, year, userId])
 }
@@ -100,8 +100,8 @@ model YearHistory {
   userId  String
   month   Int
   year    Int
-  income  Float
-  expense Float
+  order  Float
+  returns Float
 
   @@id([month, year, userId])
 }
