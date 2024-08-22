@@ -1,13 +1,13 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { UpdateUserCurrencySchema } from "@/schema/userSettings";
+import { UpdateUserWeightSchema } from "@/schema/userSettings";
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
-export async function UpdateUserCurrency(currency: string) {
-  const parsedBody = UpdateUserCurrencySchema.safeParse({
-    currency,
+export async function UpdateUserWeight(weight: string) {
+  const parsedBody = UpdateUserWeightSchema.safeParse({
+    weight,
   });
 
   if (!parsedBody.success) {
@@ -24,7 +24,7 @@ export async function UpdateUserCurrency(currency: string) {
       userId: user.id,
     },
     data: {
-      currency,
+      weight,
     },
   });
 

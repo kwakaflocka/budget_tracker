@@ -3,7 +3,7 @@
 import { GetBalanceStatsResponseType } from "@/app/api/stats/balance/route";
 import SkeletonWrapper from "@/components/SkeletonWrapper";
 import { Card } from "@/components/ui/card";
-import { DateToUTCDate, GetFormatterForCurrency } from "@/lib/helpers";
+import { DateToUTCDate, GetFormatterForWeight } from "@/lib/helpers";
 import { UserSettings } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { TrendingDown, TrendingUp, Wallet } from "lucide-react";
@@ -26,8 +26,8 @@ function StatsCards({ from, to, userSettings }: Props) {
   });
 
   const formatter = useMemo(() => {
-    return GetFormatterForCurrency(userSettings.currency);
-  }, [userSettings.currency]);
+    return GetFormatterForWeight(userSettings.weight);
+  }, [userSettings.weight]);
 
   const order = statsQuery.data?.order || 0;
   const returns = statsQuery.data?.returns || 0;

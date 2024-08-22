@@ -6,7 +6,7 @@ import CreateGrowerDialog from "@/app/(dashboard)/_components/CreateGrowerDialog
 import DeleteGrowerDialog from "@/app/(dashboard)/_components/DeleteGrowerDialog";
 import CreateStrainDialog from "@/app/(dashboard)/_components/CreateStrainDialog";
 import DeleteStrainDialog from "@/app/(dashboard)/_components/DeleteStrainDialog";
-import { CurrencyComboBox } from "@/components/CurrencyComboBox";
+import { WeightComboBox } from "@/components/WeightComboBox";
 import SkeletonWrapper from "@/components/SkeletonWrapper";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,13 +44,13 @@ function page() {
       <div className="container flex flex-col gap-4 p-4">
         <Card>
           <CardHeader>
-            <CardTitle>Currency</CardTitle>
+            <CardTitle>Weight</CardTitle>
             <CardDescription>
-              Set your default currency for transactions
+              Set your default weight for transactions
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <CurrencyComboBox />
+            <WeightComboBox />
           </CardContent>
         </Card>
         <CategoryList  />

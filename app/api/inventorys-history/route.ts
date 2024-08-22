@@ -1,4 +1,4 @@
-import { GetFormatterForCurrency } from "@/lib/helpers";
+import { GetFormatterForWeight } from "@/lib/helpers";
 import prisma from "@/lib/prisma";
 import { OverviewQuerySchema } from "@/schema/overview";
 import { currentUser } from "@clerk/nextjs";
@@ -48,7 +48,7 @@ async function getInventorysHistory(userId: string, from: Date, to: Date) {
     throw new Error("user settings not found");
   }
 
-  const formatter = GetFormatterForCurrency(userSettings.currency);
+  const formatter = GetFormatterForWeight(userSettings.weight);
 
   const inventorys = await prisma.product.findMany({
     where: {
@@ -65,7 +65,7 @@ async function getInventorysHistory(userId: string, from: Date, to: Date) {
 
   return inventorys.map((inventory) => ({
     ...inventory,
-    // lets format the amount with the user currency
+    // lets format the amount with the user weight
     formattedAmount: formatter.format(inventory.amount),
   }));
 }

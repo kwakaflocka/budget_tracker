@@ -1,11 +1,11 @@
-import { Currencies } from "@/lib/currencies";
+import { Weights } from "@/lib/weight";
 import { z } from "zod";
 
-export const UpdateUserCurrencySchema = z.object({
-  currency: z.custom((value) => {
-    const found = Currencies.some((c) => c.value === value);
+export const UpdateUserWeightSchema = z.object({
+  weight: z.custom((value) => {
+    const found = Weights.some((c) => c.value === value);
     if (!found) {
-      throw new Error(`invalid currency: ${value}`);
+      throw new Error(`invalid weight: ${value}`);
     }
 
     return value;

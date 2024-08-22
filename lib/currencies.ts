@@ -5,4 +5,4 @@ export const Currencies = [
   { value: "GBP", label: "£ Pound", locale: "en-GB" },
 ];
 
-export type Currency = (typeof Currencies)[0];
+export type Weight = (typeof Currencies)[0];

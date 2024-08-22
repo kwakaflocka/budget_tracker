@@ -5,7 +5,7 @@ import SkeletonWrapper from "@/components/SkeletonWrapper";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { DateToUTCDate, GetFormatterForCurrency } from "@/lib/helpers";
+import { DateToUTCDate, GetFormatterForWeight } from "@/lib/helpers";
 import { TransactionType } from "@/lib/types";
 import { UserSettings } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
@@ -29,8 +29,8 @@ function CategoriesStats({ userSettings, from, to }: Props) {
   });
 
   const formatter = useMemo(() => {
-    return GetFormatterForCurrency(userSettings.currency);
-  }, [userSettings.currency]);
+    return GetFormatterForWeight(userSettings.weight);
+  }, [userSettings.weight]);
 
   return (
     <div className="flex w-full flex-wrap gap-2 md:flex-nowrap">

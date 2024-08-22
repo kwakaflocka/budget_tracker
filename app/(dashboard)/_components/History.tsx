@@ -4,7 +4,7 @@ import HistoryPeriodSelector from "@/app/(dashboard)/_components/HistoryPeriodSe
 import SkeletonWrapper from "@/components/SkeletonWrapper";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GetFormatterForCurrency } from "@/lib/helpers";
+import { GetFormatterForWeight } from "@/lib/helpers";
 import { Period, Timeframe } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { UserSettings } from "@prisma/client";
@@ -29,8 +29,8 @@ function History({ userSettings }: { userSettings: UserSettings }) {
   });
 
   const formatter = useMemo(() => {
-    return GetFormatterForCurrency(userSettings.currency);
-  }, [userSettings.currency]);
+    return GetFormatterForWeight(userSettings.weight);
+  }, [userSettings.weight]);
 
   const historyDataQuery = useQuery({
     queryKey: ["overview", "history", timeframe, period],
