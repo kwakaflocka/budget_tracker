@@ -31,7 +31,7 @@ async function page() {
           <p className="text-3xl font-bold">Hello, {user.firstName}! 👋</p>
 
           <div className="flex items-center gap-3">
-          <ImportProductDialog
+          {/* <ImportProductDialog
               trigger={
                 <Button
                   variant={"outline"}
@@ -40,8 +40,8 @@ async function page() {
                   Import Product
                 </Button>
               }
-              type="order"
-            />
+              // type="order"
+            /> */}
             <CreateTransactionDialog
               trigger={
                 <Button

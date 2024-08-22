@@ -1,6 +1,6 @@
 "use client";
 
-import { DeleteStrain } from "@/app/(dashboard)/_actions/strains";
+import { DeleteTransaction } from "@/app/(dashboard)/transactions/_actions/deleteTransaction";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,61 +10,55 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { TransactionType } from "@/lib/types";
-import { Strain } from "@prisma/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import React, { ReactNode } from "react";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import React from "react";
 import { toast } from "sonner";
 
 interface Props {
-  trigger: ReactNode;
-  strain: Strain;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  transactionId: string;
 }
 
-function DeleteStrainDialog({ strain, trigger }: Props) {
-  const strainIdentifier = `${strain.name}`;
+function DeleteTransactionDialog({ open, setOpen, transactionId }: Props) {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
-    mutationFn: DeleteStrain,
+    mutationFn: DeleteTransaction,
     onSuccess: async () => {
-      toast.success("Strain deleted successfully", {
-        id: strainIdentifier,
+      toast.success("Transaction deleted successfully", {
+        id: transactionId,
       });
 
       await queryClient.invalidateQueries({
-        queryKey: ["strains"],
+        queryKey: ["transactions"],
       });
     },
     onError: () => {
       toast.error("Something went wrong", {
-        id: strainIdentifier,
+        id: transactionId,
       });
     },
   });
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete your
-            strain
+            transaction
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              toast.loading("Deleting strain...", {
-                id: strainIdentifier,
+              toast.loading("Deleting transaction...", {
+                id: transactionId,
               });
-              deleteMutation.mutate({
-                name: strain.name,
-              });
+              deleteMutation.mutate(transactionId);
             }}
           >
             Continue
@@ -75,4 +69,4 @@ function DeleteStrainDialog({ strain, trigger }: Props) {
   );
 }
 
-export default DeleteStrainDialog;
+export default DeleteTransactionDialog;

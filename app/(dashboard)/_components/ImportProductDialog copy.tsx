@@ -43,7 +43,7 @@ import { format } from "date-fns";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateProduct } from "@/app/(dashboard)/_actions/products";
+import { CreateProduct } from "@/app/(dashboard)/_actions/new-products";
 import { toast } from "sonner";
 import { DateToUTCDate } from "@/lib/helpers";
 
@@ -56,7 +56,7 @@ function ImportProductDialog({ trigger, type }: Props) {
   const form = useForm<CreateProductSchemaType>({
     resolver: zodResolver(CreateProductSchema),
     defaultValues: {
-      type: type, // TODO: should be removed
+   
       date: new Date(),
     },
   });
@@ -92,10 +92,9 @@ function ImportProductDialog({ trigger, type }: Props) {
       });
 
       form.reset({
-        type,
-        name: "",
-        amount: 0,
-        date: new Date(),
+        product: "",
+        quantity: 0,
+        createdAt: new Date(),
         category: undefined,
         grower: undefined,
         strain: undefined
@@ -116,7 +115,7 @@ function ImportProductDialog({ trigger, type }: Props) {
 
       mutate({
         ...values,
-        date: DateToUTCDate(values.date),
+        createdAt: DateToUTCDate(values.createdAt),
       });
     },
     [mutate]
@@ -133,7 +132,7 @@ function ImportProductDialog({ trigger, type }: Props) {
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
-              name="name"
+              name="product"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>

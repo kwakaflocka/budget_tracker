@@ -38,9 +38,9 @@ function CategoryPicker({ type, onChange }: Props) {
   }, [onChange, value]);
 
   const categoriesQuery = useQuery({
-    queryKey: ["categories", type],
+    queryKey: ["categories"],
     queryFn: () =>
-      fetch(`/api/categories?type=${type}`).then((res) => res.json()),
+      fetch(`/api/categories`).then((res) => res.json()),
   });
 
   // Ensure categoriesQuery.data is an array
@@ -82,7 +82,7 @@ function CategoryPicker({ type, onChange }: Props) {
           }}
         >
           <CommandInput placeholder="Search category..." />
-          <CreateCategoryDialog type={type} successCallback={successCallback} />
+          <CreateCategoryDialog  successCallback={successCallback} />
           <CommandEmpty>
             <p>Category not found</p>
             <p className="text-xs text-muted-foreground">

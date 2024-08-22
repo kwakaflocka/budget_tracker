@@ -21,13 +21,11 @@ export async function CreateGrower(form: CreateGrowerSchemaType) {
     redirect("/sign-in");
   }
 
-  const { name, icon, type } = parsedBody.data;
+  const { name, icon} = parsedBody.data;
   return await prisma.grower.create({
     data: {
-      userId: user.id,
       name,
       icon,
-      type,
     },
   });
 }
@@ -45,11 +43,10 @@ export async function DeleteGrower(form: DeleteGrowerSchemaType) {
 
   return await prisma.grower.delete({
     where: {
-      name_userId_type: {
-        userId: user.id,
+     
+       
         name: parsedBody.data.name,
-        type: parsedBody.data.type,
-      },
+       
     },
   });
 }

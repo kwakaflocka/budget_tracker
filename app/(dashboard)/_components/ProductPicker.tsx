@@ -1,6 +1,6 @@
 "use client";
 
-import CreateGrowerDialog from "@/app/(dashboard)/_components/CreateGrowerDialog";
+import CreateProductDialog from "@/app/(dashboard)/_components/CreateProductDialog";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -17,17 +17,16 @@ import {
 } from "@/components/ui/popover";
 import { TransactionType } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Grower } from "@prisma/client";
+import { Product } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 
 interface Props {
-  type: TransactionType;
   onChange: (value: string) => void;
 }
 
-function GrowerPicker({ type, onChange }: Props) {
+function ProductPicker({ onChange }: Props) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
 
@@ -37,22 +36,22 @@ function GrowerPicker({ type, onChange }: Props) {
     onChange(value);
   }, [onChange, value]);
 
-  const growersQuery = useQuery({
-    queryKey: ["growers"],
+  const productsQuery = useQuery({
+    queryKey: ["products"],
     queryFn: () =>
-      fetch(`/api/growers`).then((res) => res.json()),
+      fetch(`/api/products`).then((res) => res.json()),
   });
 
-  // Ensure growersQuery.data is an array
-  const growers = Array.isArray(growersQuery.data) ? growersQuery.data : [];
+  // Ensure productsQuery.data is an array
+  const products = Array.isArray(productsQuery.data) ? productsQuery.data : [];
 
-  const selectedGrower = growers.find(
-    (grower: Grower) => grower.name === value
+  const selectedProduct = products.find(
+    (product: Product) => product.product === value
   );
 
   const successCallback = useCallback(
-    (grower: Grower) => {
-      setValue(grower.name);
+    (product: Product) => {
+      setValue(product.product);
       setOpen((prev) => !prev);
     },
     [setValue, setOpen]
@@ -67,10 +66,10 @@ function GrowerPicker({ type, onChange }: Props) {
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {selectedGrower ? (
-            <GrowerRow grower={selectedGrower} />
+          {selectedProduct ? (
+            <ProductRow product={selectedProduct} />
           ) : (
-            "Select grower"
+            "Select product"
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -81,29 +80,29 @@ function GrowerPicker({ type, onChange }: Props) {
             e.preventDefault();
           }}
         >
-          <CommandInput placeholder="Search grower..." />
-          <CreateGrowerDialog successCallback={successCallback} />
+          <CommandInput placeholder="Search product..." />
+          <CreateProductDialog  successCallback={successCallback} />
           <CommandEmpty>
-            <p>Grower not found</p>
+            <p>Product not found</p>
             <p className="text-xs text-muted-foreground">
-              Tip: Create a new grower
+              Tip: Create a new product
             </p>
           </CommandEmpty>
           <CommandGroup>
             <CommandList>
-              {growers.map((grower: Grower) => (
+              {products.map((product: Product) => (
                 <CommandItem
-                  key={grower.name}
+                  key={product.product}
                   onSelect={() => {
-                    setValue(grower.name);
+                    setValue(product.product);
                     setOpen((prev) => !prev);
                   }}
                 >
-                  <GrowerRow grower={grower} />
+                  <ProductRow product={product} />
                   <Check
                     className={cn(
                       "mr-2 w-4 h-4 opacity-0",
-                      value === grower.name && "opacity-100"
+                      value === product.product && "opacity-100"
                     )}
                   />
                 </CommandItem>
@@ -116,13 +115,13 @@ function GrowerPicker({ type, onChange }: Props) {
   );
 }
 
-export default GrowerPicker;
+export default ProductPicker;
 
-function GrowerRow({ grower }: { grower: Grower }) {
+function ProductRow({ product }: { product: Product }) {
   return (
     <div className="flex items-center gap-2">
-      <span role="img">{grower.icon}</span>
-      <span>{grower.name}</span>
+      <span role="img">{product.icon}</span>
+      <span>{product.product}</span>
     </div>
   );
 }

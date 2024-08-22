@@ -44,17 +44,16 @@ import { toast } from "sonner";
 import { useTheme } from "next-themes";
 
 interface Props {
-  type: TransactionType;
   successCallback: (grower: Grower) => void;
   trigger?: ReactNode;
 }
 
-function CreateGrowerDialog({ type, successCallback, trigger }: Props) {
+function CreateGrowerDialog({  successCallback, trigger }: Props) {
   const [open, setOpen] = useState(false);
   const form = useForm<CreateGrowerSchemaType>({
     resolver: zodResolver(CreateGrowerSchema),
     defaultValues: {
-      type,
+    
     },
   });
 
@@ -67,7 +66,7 @@ function CreateGrowerDialog({ type, successCallback, trigger }: Props) {
       form.reset({
         name: "",
         icon: "",
-        type,
+      
       });
 
       toast.success(`Grower ${data.name} created successfully 🎉`, {
@@ -121,10 +120,9 @@ function CreateGrowerDialog({ type, successCallback, trigger }: Props) {
             <span
               className={cn(
                 "m-1",
-                type === "order" ? "text-emerald-500" : "text-red-500"
+              
               )}
             >
-              {type}
             </span>
             grower
           </DialogTitle>

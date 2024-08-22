@@ -20,73 +20,59 @@ model UserSettings {
 }
 
 model Strain {
-  id        String    @id @default(uuid())
+ id        Int       @id @default(autoincrement())
+  name      String   
   createdAt DateTime  @default(now())
-  name      String
-  userId    String
   icon      String
-  type      String    @default("returns")
-  products  Product[] @relation("StrainToProduct")
+  products  Product[] 
 
-  @@unique([name, userId, type])
 }
 
 model Category {
-  id        String   @id @default(uuid())
+ id        Int       @id @default(autoincrement())
   createdAt DateTime @default(now())
-  name      String
-  userId    String
+  name      String    @unique
   icon      String
-  type      String   @default("returns")
-  products  Product[] @relation("CategoryToProduct")
+  products  Product[] 
 
-  @@unique([name, userId, type])
 }
 
 model Grower {
-  id        String    @id @default(uuid())
+   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
-  name      String
-  userId    String
+  name      String    @unique
   icon      String
-  type      String    @default("returns")
-  products  Product[] @relation("GrowerToProduct")
+  products  Product[] 
 
-  @@unique([name, userId, type])
 }
 
 model Transaction {
-  id           String   @id @default(uuid())
+  id          Int       @id @default(autoincrement())
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   amount       Float
   description  String
   date         DateTime
-  userId       String
   type         String   @default("order")
-  strain       String
-  strainIcon   String
-  category     String
-  categoryIcon String
-  grower       String
-  growerIcon   String
-  productId    String?
-  product      Product? @relation(fields: [productId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
+  productId   Int
 }
 
 model Product {
-  id           String        @id @default(uuid())
+  id          Int       @id @default(autoincrement())
   createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @default(now())
-  name         String        @unique
-  strainId     String?
-  strain       Strain?       @relation("StrainToProduct", fields: [strainId], references: [id])
-  growerId     String?
-  grower       Grower?       @relation("GrowerToProduct", fields: [growerId], references: [id])
-  categoryId   String?
-  category       Category?       @relation("CategoryToProduct", fields: [categoryId], references: [id])
- 
+  updatedAt    DateTime      @updatedAt
+  product      String        @unique
+icon        String? 
+ strainId    Int
+  strain      Strain     @relation(fields: [strainId], references: [id])
+  growerId    Int
+  grower      Grower     @relation(fields: [growerId], references: [id])
+  categoryId   Int    
+  category     Category   @relation(fields: [categoryId], references: [id])
   transactions Transaction[]
+  quantity  Int      @default(0)
+
 }
 
 model MonthHistory {
@@ -97,7 +83,7 @@ model MonthHistory {
   order  Float
   returns Float
 
-  @@id([day, month, year, userId])
+  @@id([day, month, year])
 }
 
 model YearHistory {
@@ -107,5 +93,5 @@ model YearHistory {
   order  Float
   returns Float
 
-  @@id([month, year, userId])
+  @@id([month, year])
 }

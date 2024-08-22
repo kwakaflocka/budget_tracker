@@ -53,12 +53,12 @@ function page() {
             <CurrencyComboBox />
           </CardContent>
         </Card>
-        <CategoryList type="order" />
-        <CategoryList type="returns" />
-        <GrowerList type="order" />
-        <GrowerList type="returns" />
-        <StrainList type="order" />
-        <StrainList type="returns" />
+        <CategoryList  />
+     
+        <GrowerList  />
+       
+        <StrainList />
+      
       </div>
     </>
   );
@@ -66,11 +66,11 @@ function page() {
 
 export default page;
 
-function CategoryList({ type }: { type: TransactionType }) {
+function CategoryList() {
   const categoriesQuery = useQuery({
-    queryKey: ["categories", type],
+    queryKey: ["categories"],
     queryFn: () =>
-      fetch(`/api/categories?type=${type}`).then((res) => res.json()),
+      fetch(`/api/categories`).then((res) => res.json()),
   });
 
   const dataAvailable = categoriesQuery.data && categoriesQuery.data.length > 0;
@@ -81,13 +81,9 @@ function CategoryList({ type }: { type: TransactionType }) {
         <CardHeader>
           <CardTitle className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              {type === "returns" ? (
-                <TrendingDown className="h-12 w-12 items-center rounded-lg bg-red-400/10 p-2 text-red-500" />
-              ) : (
-                <TrendingUp className="h-12 w-12 items-center rounded-lg bg-emerald-400/10 p-2 text-emerald-500" />
-              )}
+             
               <div>
-                {type === "order" ? "orders" : "returnss"} categories
+                 categories
                 <div className="text-sm text-muted-foreground">
                   Sorted by name
                 </div>
@@ -95,7 +91,7 @@ function CategoryList({ type }: { type: TransactionType }) {
             </div>
 
             <CreateCategoryDialog
-              type={type}
+            
               successCallback={() => categoriesQuery.refetch()}
               trigger={
                 <Button className="gap-2 text-sm">
@@ -114,10 +110,10 @@ function CategoryList({ type }: { type: TransactionType }) {
               <span
                 className={cn(
                   "m-1",
-                  type === "order" ? "text-emerald-500" : "text-red-500"
+                 "text-emerald-500" 
                 )}
               >
-                {type}
+              
               </span>
               categories yet
             </p>
@@ -164,11 +160,11 @@ function CategoryCard({ category }: { category: Category }) {
   );
 }
 
-function GrowerList({ type }: { type: TransactionType }) {
+function GrowerList() {
   const growersQuery = useQuery({
-    queryKey: ["growers", type],
+    queryKey: ["growers"],
     queryFn: () =>
-      fetch(`/api/growers?type=${type}`).then((res) => res.json()),
+      fetch(`/api/growers`).then((res) => res.json()),
   });
 
   const dataAvailable = growersQuery.data && growersQuery.data.length > 0;
@@ -179,13 +175,9 @@ function GrowerList({ type }: { type: TransactionType }) {
         <CardHeader>
           <CardTitle className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              {type === "returns" ? (
-                <TrendingDown className="h-12 w-12 items-center rounded-lg bg-red-400/10 p-2 text-red-500" />
-              ) : (
-                <TrendingUp className="h-12 w-12 items-center rounded-lg bg-emerald-400/10 p-2 text-emerald-500" />
-              )}
+             
               <div>
-                {type === "order" ? "orders" : "returnss"} growers
+                growers
                 <div className="text-sm text-muted-foreground">
                   Sorted by name
                 </div>
@@ -193,7 +185,7 @@ function GrowerList({ type }: { type: TransactionType }) {
             </div>
 
             <CreateGrowerDialog
-              type={type}
+          
               successCallback={() => growersQuery.refetch()}
               trigger={
                 <Button className="gap-2 text-sm">
@@ -212,10 +204,10 @@ function GrowerList({ type }: { type: TransactionType }) {
               <span
                 className={cn(
                   "m-1",
-                  type === "order" ? "text-emerald-500" : "text-red-500"
+                "text-emerald-500" 
                 )}
               >
-                {type}
+                
               </span>
               growers yet
             </p>
@@ -262,11 +254,11 @@ function GrowerCard({ grower }: { grower: Grower }) {
   );
 }
 
-function StrainList({ type }: { type: TransactionType }) {
+function StrainList() {
   const strainsQuery = useQuery({
     queryKey: ["strains", type],
     queryFn: () =>
-      fetch(`/api/strains?type=${type}`).then((res) => res.json()),
+      fetch(`/api/strains`).then((res) => res.json()),
   });
 
   const dataAvailable = strainsQuery.data && strainsQuery.data.length > 0;
@@ -277,13 +269,9 @@ function StrainList({ type }: { type: TransactionType }) {
         <CardHeader>
           <CardTitle className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              {type === "returns" ? (
-                <TrendingDown className="h-12 w-12 items-center rounded-lg bg-red-400/10 p-2 text-red-500" />
-              ) : (
-                <TrendingUp className="h-12 w-12 items-center rounded-lg bg-emerald-400/10 p-2 text-emerald-500" />
-              )}
+            
               <div>
-                {type === "order" ? "orders" : "returns"} strains
+               strains
                 <div className="text-sm text-muted-foreground">
                   Sorted by name
                 </div>
@@ -291,7 +279,7 @@ function StrainList({ type }: { type: TransactionType }) {
             </div>
 
             <CreateStrainDialog
-              type={type}
+        
               successCallback={() => strainsQuery.refetch()}
               trigger={
                 <Button className="gap-2 text-sm">
@@ -310,10 +298,10 @@ function StrainList({ type }: { type: TransactionType }) {
               <span
                 className={cn(
                   "m-1",
-                  type === "order" ? "text-emerald-500" : "text-red-500"
+                "text-emerald-500"
                 )}
               >
-                {type}
+              
               </span>
               strains yet
             </p>

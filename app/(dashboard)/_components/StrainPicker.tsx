@@ -23,11 +23,11 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 
 interface Props {
-  type: TransactionType;
+
   onChange: (value: string) => void;
 }
 
-function StrainPicker({ type, onChange }: Props) {
+function StrainPicker({ onChange }: Props) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
 
@@ -38,9 +38,9 @@ function StrainPicker({ type, onChange }: Props) {
   }, [onChange, value]);
 
   const strainsQuery = useQuery({
-    queryKey: ["strains", type],
+    queryKey: ["strains"],
     queryFn: () =>
-      fetch(`/api/strains?type=${type}`).then((res) => res.json()),
+      fetch(`/api/strains`).then((res) => res.json()),
   });
 
   // Ensure strainsQuery.data is an array
@@ -82,7 +82,7 @@ function StrainPicker({ type, onChange }: Props) {
           }}
         >
           <CommandInput placeholder="Search strain..." />
-          <CreateStrainDialog type={type} successCallback={successCallback} />
+          <CreateStrainDialog successCallback={successCallback} />
           <CommandEmpty>
             <p>Strain not found</p>
             <p className="text-xs text-muted-foreground">

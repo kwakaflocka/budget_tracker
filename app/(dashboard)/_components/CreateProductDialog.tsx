@@ -20,6 +20,11 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import StrainPicker from "@/app/(dashboard)/_components/StrainPicker";
+import GrowerPicker from "@/app/(dashboard)/_components/GrowerPicker";
+import ProductPicker from "@/app/(dashboard)/_components/ProductPicker";
+import CategoryPicker from "@/app/(dashboard)/_components/CategoryPicker";
+
 import {
   Popover,
   PopoverContent,
@@ -28,9 +33,9 @@ import {
 import { TransactionType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
-  CreateStrainSchema,
-  CreateStrainSchemaType,
-} from "@/schema/strains";
+  CreateProductSchema,
+  CreateProductSchemaType,
+} from "@/schema/product";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleOff, Loader2, PlusSquare } from "lucide-react";
 import React, { ReactNode, useCallback, useState } from "react";
@@ -38,58 +43,92 @@ import { useForm } from "react-hook-form";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateStrain } from "@/app/(dashboard)/_actions/strains";
-import { Strain } from "@prisma/client";
+import { CreateProduct } from "@/app/(dashboard)/_actions/new-products";
+import { Product } from "@prisma/client";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
+import { orderColumns } from "@tanstack/react-table";
 
 interface Props {
-  successCallback: (strain: Strain) => void;
-  trigger?: ReactNode;
+  trigger: ReactNode;
+  successCallback: (product: Product) => void;
 }
 
-function CreateStrainDialog({ successCallback, trigger }: Props) {
-  const [open, setOpen] = useState(false);
-  const form = useForm<CreateStrainSchemaType>({
-    resolver: zodResolver(CreateStrainSchema),
+
+function CreateProductDialog({ trigger, successCallback }: Props) {
+  const form = useForm<CreateProductSchemaType>({
+    resolver: zodResolver(CreateProductSchema),
     defaultValues: {
+      createdAt: new Date(),
     },
   });
+ 
+  const [open, setOpen] = useState(false);
+
+  const handleProductChange = useCallback(
+    (value: string) => {
+      form.setValue("product", value);
+    },
+    [form]
+  );
+  
+  const handleStrainChange = useCallback( 
+    (value: string) => {
+      form.setValue("strain", value);
+    },
+    [form]
+  );
+  const handleGrowerChange = useCallback(
+    (value: string) => {
+      form.setValue("grower", value);
+    },
+    [form]
+  );
+  const handleCategoryChange = useCallback(
+    (value: string) => {
+      form.setValue("category", value);
+    },
+    [form]
+  );
 
   const queryClient = useQueryClient();
   const theme = useTheme();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: CreateStrain,
-    onSuccess: async (data: Strain) => {
-      form.reset({
-        name: "",
+    mutationFn: CreateProduct,
+    onSuccess: async (data: Product) => {
+    form.reset({
+        product: "",
         icon: "",
+        strain: undefined,
+        grower: undefined,
+        category: undefined
       });
 
-      toast.success(`Strain ${data.name} created successfully 🎉`, {
-        id: "create-strain",
+      toast.success(`Product ${data.product} created successfully 🎉`, {
+        id: "create-product",
       });
+
 
       successCallback(data);
 
       await queryClient.invalidateQueries({
-        queryKey: ["strains"],
+        queryKey: ["products"],
       });
 
       setOpen((prev) => !prev);
     },
     onError: () => {
       toast.error("Something went wrong", {
-        id: "create-strain",
+        id: "create-product",
       });
     },
   });
 
   const onSubmit = useCallback(
-    (values: CreateStrainSchemaType) => {
-      toast.loading("Creating strain...", {
-        id: "create-strain",
+    (values: CreateProductSchemaType) => {
+      toast.loading("Creating product...", {
+        id: "create-product",
       });
       mutate(values);
     },
@@ -118,35 +157,48 @@ function CreateStrainDialog({ successCallback, trigger }: Props) {
             <span
               className={cn(
                 "m-1",
-               "text-emerald-500" 
+                 "text-emerald-500" 
               )}
             >
-             
             </span>
-            strain
+            new Product
           </DialogTitle>
           <DialogDescription>
-            Strains are used to group your transactions
+            Name a new Product and assign a Grower, Strain, and Category
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="name"
+              name="product"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Strain" {...field} />
+                    <Input placeholder="Product" {...field} />
                   </FormControl>
                   <FormDescription>
-                    This is how your strain will appear in the app
+                    This is how your product will appear in the app
                   </FormDescription>
                 </FormItem>
               )}
             />
-
+            <FormField
+              control={form.control}
+              name="quantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount</FormLabel>
+                  <FormControl>
+                    <Input defaultValue={0} type="number" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Transaction amount (required)
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="icon"
@@ -191,13 +243,66 @@ function CreateStrainDialog({ successCallback, trigger }: Props) {
                     </Popover>
                   </FormControl>
                   <FormDescription>
-                    This is how your strain will appear in the app
+                    This is how your product will appear in the app
                   </FormDescription>
                 </FormItem>
               )}
             />
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Category</FormLabel>
+                    <FormControl>
+                      <CategoryPicker
+                        onChange={handleCategoryChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Select a category for this Product
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+<FormField
+                control={form.control}
+                name="grower"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Grower</FormLabel>
+                    <FormControl>
+                      <GrowerPicker
+                        onChange={handleGrowerChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Select a grower for this transaction
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+                            <FormField
+                control={form.control}
+                name="strain"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Strain</FormLabel>
+                    <FormControl>
+                      <StrainPicker
+                      
+                        onChange={handleStrainChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Select a strain for this Product
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
           </form>
         </Form>
+
         <DialogFooter>
           <DialogClose asChild>
             <Button
@@ -220,4 +325,4 @@ function CreateStrainDialog({ successCallback, trigger }: Props) {
   );
 }
 
-export default CreateStrainDialog;
+export default CreateProductDialog;

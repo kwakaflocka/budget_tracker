@@ -24,7 +24,7 @@ interface Props {
 }
 
 function DeleteGrowerDialog({ grower, trigger }: Props) {
-  const growerIdentifier = `${grower.name}-${grower.type}`;
+  const growerIdentifier = `${grower.name}-`;
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -64,7 +64,6 @@ function DeleteGrowerDialog({ grower, trigger }: Props) {
               });
               deleteMutation.mutate({
                 name: grower.name,
-                type: grower.type as TransactionType,
               });
             }}
           >

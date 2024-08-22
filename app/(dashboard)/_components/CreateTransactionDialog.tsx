@@ -30,6 +30,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import ProductPicker from "@/app/(dashboard)/_components/ProductPicker";
+
 import StrainPicker from "@/app/(dashboard)/_components/StrainPicker";
 import GrowerPicker from "@/app/(dashboard)/_components/GrowerPicker";
 import CategoryPicker from "@/app/(dashboard)/_components/CategoryPicker";
@@ -44,8 +46,11 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CreateTransaction } from "@/app/(dashboard)/_actions/transactions";
+import { CreateProduct } from "@/app/(dashboard)/_actions/new-products";
+
 import { toast } from "sonner";
 import { DateToUTCDate } from "@/lib/helpers";
+import CreateProductDialog from './CreateProductDialog';
 
 interface Props {
   trigger: ReactNode;
@@ -61,21 +66,28 @@ function CreateTransactionDialog({ trigger, type }: Props) {
     },
   });
   const [open, setOpen] = useState(false);
+  
+  const handleProductChange = useCallback(
+    (value: string) => {
+      form.setValue("product", value);
+    },
+    [form]
+  );
   const handleStrainChange = useCallback(
     (value: string) => {
-      form.setValue("strain", value);
+      form.setValue("product.strain", value);
     },
     [form]
   );
   const handleGrowerChange = useCallback(
     (value: string) => {
-      form.setValue("grower", value);
+      form.setValue("product.grower", value);
     },
     [form]
   );
   const handleCategoryChange = useCallback(
     (value: string) => {
-      form.setValue("category", value);
+      form.setValue("product.category", value);
     },
     [form]
   );
@@ -89,13 +101,14 @@ function CreateTransactionDialog({ trigger, type }: Props) {
       });
 
       form.reset({
+        product: '',
         type,
         description: "",
         amount: 0,
         date: new Date(),
-        strain: undefined,
-        grower: undefined,
-        category: undefined
+        // strain: undefined,
+        // grower: undefined,
+        // category: undefined
       });
 
       // After creating a transaction, we need to invalidate the overview query which will refetch data in the homepage
@@ -139,7 +152,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
         </DialogHeader>
         <Form {...form}>
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-            <FormField
+            {/* <FormField
               control={form.control}
               name="description"
               render={({ field }) => (
@@ -153,7 +166,26 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                   </FormDescription>
                 </FormItem>
               )}
-            />
+            /> */}
+
+<FormField
+                control={form.control}
+                name="product"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Product</FormLabel>
+                    <FormControl>
+                      <ProductPicker
+                      
+                        onChange={handleProductChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Select a product for this transaction
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
             <FormField
               control={form.control}
               name="amount"
@@ -169,7 +201,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                 </FormItem>
               )}
             />
-            <div className="flex items-center justify-between gap-2">
+            {/* <div className="flex items-center justify-between gap-2">
               <FormField
                 control={form.control}
                 name="grower"
@@ -270,7 +302,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                   </FormItem>
                 )}
               />
-            </div>
+            </div> */}
           </form>
         </Form>
         <DialogFooter>

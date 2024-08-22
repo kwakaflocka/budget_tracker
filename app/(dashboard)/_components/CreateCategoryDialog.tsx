@@ -44,17 +44,17 @@ import { toast } from "sonner";
 import { useTheme } from "next-themes";
 
 interface Props {
-  type: TransactionType;
+
   successCallback: (category: Category) => void;
   trigger?: ReactNode;
 }
 
-function CreateCategoryDialog({ type, successCallback, trigger }: Props) {
+function CreateCategoryDialog({ successCallback, trigger }: Props) {
   const [open, setOpen] = useState(false);
   const form = useForm<CreateCategorySchemaType>({
     resolver: zodResolver(CreateCategorySchema),
     defaultValues: {
-      type,
+     
     },
   });
 
@@ -67,7 +67,7 @@ function CreateCategoryDialog({ type, successCallback, trigger }: Props) {
       form.reset({
         name: "",
         icon: "",
-        type,
+       
       });
 
       toast.success(`Category ${data.name} created successfully 🎉`, {
@@ -120,11 +120,10 @@ function CreateCategoryDialog({ type, successCallback, trigger }: Props) {
             Create
             <span
               className={cn(
-                "m-1",
-                type === "order" ? "text-emerald-500" : "text-red-500"
+                "m-1","text-emerald-500" 
               )}
             >
-              {type}
+              
             </span>
             category
           </DialogTitle>

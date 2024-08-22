@@ -19,12 +19,22 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
     redirect("/sign-in");
   }
 
-  const { amount, category, grower, strain, date, description, type } = parsedBody.data;
+  const { product, amount,  date, description, type } = parsedBody.data;
+
+  const productRow = await prisma.product.findFirst({
+    where: {
+      product: parsedBody.data.product,  // Assuming you're searching by product name
+    },
+  });
+
+  if (!productRow) {
+    throw new Error("product not found");
+  }
 
   const categoryRow = await prisma.category.findFirst({
     where: {
-      userId: user.id,
-      name: category,
+    
+      // name: category,
     },
   });
 
@@ -34,8 +44,8 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
 
   const growerRow = await prisma.grower.findFirst({
     where: {
-      userId: user.id,
-      name: grower,
+    
+      // name: grower,
     },
   });
 
@@ -45,8 +55,8 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
 
   const strainRow = await prisma.strain.findFirst({
     where: {
-      userId: user.id,
-      name: strain,
+   
+      // name: strain,
     },
   });
 
@@ -57,25 +67,47 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
 
   await prisma.transaction.create({
     data: {
+      product,
       amount,
-      category: categoryRow.name,
-      categoryIcon: categoryRow.icon,
-      grower: growerRow.name,
-      growerIcon: growerRow.icon,
-      strain: strainRow.name,
-      strainIcon: strainRow.icon,
+      productId: productRow.id,
       description: description || "",
       date,
-      type,
-      userId: user.id,
+      type
     },
   })
+  
+  await prisma.product.upsert({
+    where: {
+      product: parsedBody.data.product,  // Assuming 'product' is a unique field in your schema
+    },
+    update: {
+      quantity: {
+        increment: +amount,  // Increment the quantity by 'amount'
+      },
+    },
+    create: {
+      product: parsedBody.data.product,  // Create a new product if it doesn't exist
+      quantity: +amount,                 // Initialize the quantity with the given amount                // Set other fields as necessary
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      strain: {
+        connect: { id: strainRow.id },   // Connect to an existing strain
+      },
+      grower: {
+        connect: { id: growerRow.id },   // Connect to an existing grower
+      },
+      category: {
+        connect: { id: categoryRow.id }, // Connect to an existing category
+      },
+      // Add other optional fields if necessary (icon, etc.)
+    },
+  });
   
   // Update month aggregate table
   await prisma.monthHistory.upsert({
     where: {
-      day_month_year_userId: {
-        userId: user.id,
+      day_month_year: {
+      
         day: date.getUTCDate(),
         month: date.getUTCMonth(),
         year: date.getUTCFullYear(),
@@ -102,8 +134,8 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
   // Update year aggreate
   await prisma.yearHistory.upsert({
     where: {
-      month_year_userId: {
-        userId: user.id,
+      month_year: {
+       
         month: date.getUTCMonth(),
         year: date.getUTCFullYear(),
       },

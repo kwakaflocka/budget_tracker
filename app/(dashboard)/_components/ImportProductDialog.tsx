@@ -63,19 +63,25 @@ function CreateTransactionDialog({ trigger, type }: Props) {
   const [open, setOpen] = useState(false);
   const handleStrainChange = useCallback(
     (value: string) => {
-      form.setValue("strain", value);
+      form.setValue("product.strain", value);
+    },
+    [form]
+  );
+  const handleProductChange = useCallback(
+    (value: string) => {
+      form.setValue("product", value);
     },
     [form]
   );
   const handleGrowerChange = useCallback(
     (value: string) => {
-      form.setValue("grower", value);
+      form.setValue("product.grower", value);
     },
     [form]
   );
   const handleCategoryChange = useCallback(
     (value: string) => {
-      form.setValue("category", value);
+      form.setValue("product.category", value);
     },
     [form]
   );
@@ -89,7 +95,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
       });
 
       form.reset({
-        type,
+product: "",
         description: "",
         amount: 0,
         date: new Date(),
@@ -143,16 +149,35 @@ function CreateTransactionDialog({ trigger, type }: Props) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input defaultValue={""} {...field} />
                   </FormControl>
                   <FormDescription>
-                    Transaction description (optional)
+                    Product 
                   </FormDescription>
                 </FormItem>
               )}
             />
+
+<FormField
+                control={form.control}
+                name="product"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Product</FormLabel>
+                    <FormControl>
+                      <GrowerPicker
+                        type={type}
+                        onChange={handleProductChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter a name for this product
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
             <FormField
               control={form.control}
               name="amount"
@@ -201,7 +226,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                       />
                     </FormControl>
                     <FormDescription>
-                      Select a category for this transaction
+                      Select a category for this Product
                     </FormDescription>
                   </FormItem>
                 )}
@@ -221,7 +246,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                       />
                     </FormControl>
                     <FormDescription>
-                      Select a strain for this transaction
+                      Select a strain for this Product
                     </FormDescription>
                   </FormItem>
                 )}
@@ -232,7 +257,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Transaction date</FormLabel>
+                    <FormLabel>Addition date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
