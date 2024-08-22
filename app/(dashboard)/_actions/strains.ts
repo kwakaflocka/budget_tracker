@@ -25,7 +25,7 @@ export async function CreateStrain(form: CreateStrainSchemaType) {
   return await prisma.strain.create({
     data: {
       name,
-      icon
+      icon,
     },
   });
 }
@@ -41,11 +41,24 @@ export async function DeleteStrain(form: DeleteStrainSchemaType) {
     redirect("/sign-in");
   }
 
+  // Check if any products are referencing this strain
+  const products = await prisma.product.findMany({
+    where: {
+      strain: {
+        name: parsedBody.data.name,
+      },
+    },
+  });
+
+  if (products.length > 0) {
+    throw new Error("Cannot delete strain: it is being referenced by products");
+  }
+
+  // If no products reference the strain, delete it
   return await prisma.strain.delete({
     where: {
-    
-        name: parsedBody.data.name
-
+      name: parsedBody.data.name,
     },
   });
 }
+

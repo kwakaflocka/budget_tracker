@@ -23,7 +23,7 @@ model Strain {
  id        Int       @id @default(autoincrement())
   name      String    @unique 
   createdAt DateTime  @default(now())
-  icon      String
+  icon      String?
   products  Product[] 
 
 }
@@ -46,34 +46,35 @@ model Grower {
 
 }
 
-model Transaction {
-  id          Int       @id @default(autoincrement())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  amount       Float
-  description String?   // Make the description nullable
-  date         DateTime
-  type         String   @default("order")
-  product     Product   @relation(fields: [productId], references: [id])
-  productId   Int
-}
 
 model Product {
   id          Int       @id @default(autoincrement())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  product      String        @unique
-icon        String? 
- strainId    Int
-  strain      Strain     @relation(fields: [strainId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  product     String    @unique
+  icon        String?
+  strainId    Int
+  strain      Strain    @relation(fields: [strainId], references: [id])
   growerId    Int
-  grower      Grower     @relation(fields: [growerId], references: [id])
-  categoryId   Int    
-  category     Category   @relation(fields: [categoryId], references: [id])
-  transactions Transaction[]
-  quantity  Int      @default(0)
-
+  grower      Grower    @relation(fields: [growerId], references: [id])
+  categoryId  Int
+  category    Category  @relation(fields: [categoryId], references: [id])
+  transactions Transaction[]  // No @relation attribute needed here
+  quantity    Int       @default(0)
 }
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  amount      Float
+  description String?
+  date        DateTime
+  type        String   @default("order")
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)  // Specify @relation here
+  productId   Int
+}
+
 
 model MonthHistory {
   userId  String

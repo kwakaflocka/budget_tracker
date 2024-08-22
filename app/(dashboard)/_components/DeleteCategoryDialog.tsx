@@ -24,7 +24,7 @@ interface Props {
 }
 
 function DeleteCategoryDialog({ category, trigger }: Props) {
-  const categoryIdentifier = `${category.name}-${category.type}`;
+  const categoryIdentifier = `${category.name}`;
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -64,7 +64,8 @@ function DeleteCategoryDialog({ category, trigger }: Props) {
               });
               deleteMutation.mutate({
                 name: category.name,
-                type: category.type as TransactionType,
+                icon: category.icon
+              
               });
             }}
           >

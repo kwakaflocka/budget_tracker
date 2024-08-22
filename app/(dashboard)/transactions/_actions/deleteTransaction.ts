@@ -10,30 +10,47 @@ export async function DeleteTransaction(id: string) {
     redirect("/sign-in");
   }
 
+  // Find the transaction by its unique ID
   const transaction = await prisma.transaction.findUnique({
     where: {
-      userId: user.id,
-      id,
+      id: parseInt(id),  // Ensure ID is an integer
+    },
+    include: {
+      product: true,  // Include the related product in the query
     },
   });
 
   if (!transaction) {
-    throw new Error("bad request");
+    throw new Error("Transaction not found");
   }
 
+  // Ensure the transaction belongs to the current user (you can uncomment if you have userId tracking)
+  // if (transaction.userId !== user.id) {
+  //   throw new Error("You don't have permission to delete this transaction");
+  // }
+
+  // Determine how the product's quantity should be updated
+  const productQuantityUpdate = {
+    ...(transaction.type === "returns" && { quantity: { increment: transaction.amount } }),
+    ...(transaction.type === "order" && { quantity: { decrement: transaction.amount } }),
+  };
+
   await prisma.$transaction([
-    // Delete transaction from db
+    // Delete the transaction
     prisma.transaction.delete({
       where: {
-        id,
-        userId: user.id,
+        id: parseInt(id),  // Use only the unique ID for deletion
       },
     }),
-    // Update month history
+    // Update the product's quantity
+    prisma.product.update({
+      where: { id: transaction.productId },  // Update the correct product by its ID
+      data: productQuantityUpdate,  // Apply the correct increment/decrement
+    }),
+    // Update the month history
     prisma.monthHistory.update({
       where: {
-        day_month_year_userId: {
-          userId: user.id,
+        day_month_year: {
           day: transaction.date.getUTCDate(),
           month: transaction.date.getUTCMonth(),
           year: transaction.date.getUTCFullYear(),
@@ -41,36 +58,27 @@ export async function DeleteTransaction(id: string) {
       },
       data: {
         ...(transaction.type === "returns" && {
-          returns: {
-            decrement: transaction.amount,
-          },
+          returns: { decrement: transaction.amount },
         }),
         ...(transaction.type === "order" && {
-          order: {
-            decrement: transaction.amount,
-          },
+          order: { decrement: transaction.amount },
         }),
       },
     }),
-    // Update year history
+    // Update the year history
     prisma.yearHistory.update({
       where: {
-        month_year_userId: {
-          userId: user.id,
+        month_year: {
           month: transaction.date.getUTCMonth(),
           year: transaction.date.getUTCFullYear(),
         },
       },
       data: {
         ...(transaction.type === "returns" && {
-          returns: {
-            decrement: transaction.amount,
-          },
+          returns: { decrement: transaction.amount },
         }),
         ...(transaction.type === "order" && {
-          order: {
-            decrement: transaction.amount,
-          },
+          order: { decrement: transaction.amount },
         }),
       },
     }),
