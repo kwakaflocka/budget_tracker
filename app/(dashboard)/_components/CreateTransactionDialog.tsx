@@ -73,24 +73,24 @@ function CreateTransactionDialog({ trigger, type }: Props) {
     },
     [form]
   );
-  const handleStrainChange = useCallback(
-    (value: string) => {
-      form.setValue("product.strain", value);
-    },
-    [form]
-  );
-  const handleGrowerChange = useCallback(
-    (value: string) => {
-      form.setValue("product.grower", value);
-    },
-    [form]
-  );
-  const handleCategoryChange = useCallback(
-    (value: string) => {
-      form.setValue("product.category", value);
-    },
-    [form]
-  );
+  // const handleStrainChange = useCallback(
+  //   (value: string) => {
+  //     form.setValue("product.strain", value);
+  //   },
+  //   [form]
+  // );
+  // const handleGrowerChange = useCallback(
+  //   (value: string) => {
+  //     form.setValue("product.grower", value);
+  //   },
+  //   [form]
+  // );
+  // const handleCategoryChange = useCallback(
+  //   (value: string) => {
+  //     form.setValue("product.category", value);
+  //   },
+  //   [form]
+  // );
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
@@ -197,6 +197,24 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                   </FormControl>
                   <FormDescription>
                     Transaction amount (required)
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+                        <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                  <Input
+          {...field}   // Spread field but override `value` within it
+          value={field.value ?? ""}  // Coerce `null` to an empty string
+        />
+          </FormControl>
+                  <FormDescription>
+                    Product 
                   </FormDescription>
                 </FormItem>
               )}

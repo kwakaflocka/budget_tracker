@@ -23,11 +23,10 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 
 interface Props {
-  type: TransactionType;
   onChange: (value: string) => void;
 }
 
-function CategoryPicker({ type, onChange }: Props) {
+function CategoryPicker({  onChange }: Props) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
 

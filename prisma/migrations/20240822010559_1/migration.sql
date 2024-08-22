@@ -35,7 +35,7 @@ CREATE TABLE "Transaction" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "amount" REAL NOT NULL,
-    "description" TEXT NOT NULL,
+    "description" TEXT,
     "date" DATETIME NOT NULL,
     "type" TEXT NOT NULL DEFAULT 'order',
     "productId" INTEGER NOT NULL,

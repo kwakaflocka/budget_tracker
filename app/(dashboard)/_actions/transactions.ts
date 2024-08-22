@@ -21,11 +21,11 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
 
   const { product, amount,  date, description, type } = parsedBody.data;
 
-  const productRow = await prisma.product.findFirst({
-    where: {
-      product: parsedBody.data.product,  // Assuming you're searching by product name
-    },
+  const productRow = await prisma.product.findUnique({
+    where: { product: parsedBody.data.product }, // Fetch by product name or any other identifier
   });
+  
+ 
 
   if (!productRow) {
     throw new Error("product not found");
@@ -65,16 +65,19 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
   }
 
 
-  await prisma.transaction.create({
-    data: {
-      product,
-      amount,
-      productId: productRow.id,
-      description: description || "",
-      date,
-      type
+await prisma.transaction.create({
+  data: {
+    amount: parsedBody.data.amount,
+    description: description || null,  // Set to null if not provided
+    date: parsedBody.data.date,
+    type: parsedBody.data.type,
+    product: {
+      connect: { product: productRow.product },  // Use the product's ID for the relation
     },
-  })
+    // productId: productRow.id, // You might not need this if the relation is already being set via `product`
+  },
+});
+
   
   await prisma.product.upsert({
     where: {

@@ -81,7 +81,7 @@ function ProductPicker({ onChange }: Props) {
           }}
         >
           <CommandInput placeholder="Search product..." />
-          <CreateProductDialog  successCallback={successCallback} />
+          <CreateProductDialog successCallback={successCallback} />
           <CommandEmpty>
             <p>Product not found</p>
             <p className="text-xs text-muted-foreground">
