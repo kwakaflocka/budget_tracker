@@ -1,6 +1,6 @@
 "use client";
 
-import { DeleteTransaction } from "@/app/(dashboard)/transactions/_actions/deleteTransaction";
+import { DeleteProduct } from "@/app/(dashboard)/inventory/_actions/deleteProduct";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,26 +18,26 @@ import { toast } from "sonner";
 interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
-  transactionId: string;
+  productId: string;
 }
 
-function DeleteTransactionDialog({ open, setOpen, transactionId }: Props) {
+function DeleteProductDialog({ open, setOpen, productId }: Props) {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
-    mutationFn: DeleteTransaction,
+    mutationFn: DeleteProduct,
     onSuccess: async () => {
-      toast.success("Transaction deleted successfully", {
-        id: transactionId,
+      toast.success("Product deleted successfully", {
+        id: productId,
       });
 
       await queryClient.invalidateQueries({
-        queryKey: ["transactions"],
+        queryKey: ["products"],
       });
     },
     onError: () => {
       toast.error("Something went wrong", {
-        id: transactionId,
+        id: productId,
       });
     },
   });
@@ -48,17 +48,17 @@ function DeleteTransactionDialog({ open, setOpen, transactionId }: Props) {
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete your
-            transaction
+            product
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              toast.loading("Deleting transaction...", {
-                id: transactionId,
+              toast.loading("Deleting product...", {
+                id: productId,
               });
-              deleteMutation.mutate(transactionId);
+              deleteMutation.mutate(productId);
             }}
           >
             Continue
@@ -69,4 +69,4 @@ function DeleteTransactionDialog({ open, setOpen, transactionId }: Props) {
   );
 }
 
-export default DeleteTransactionDialog;
+export default DeleteProductDialog;

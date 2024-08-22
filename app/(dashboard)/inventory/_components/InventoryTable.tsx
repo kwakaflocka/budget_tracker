@@ -402,7 +402,7 @@ function RowActions({ product }: { product: ProductHistoryRow }) {
       <DeleteProductDialog
         open={showDeleteDialog}
         setOpen={setShowDeleteDialog}
-        id={product.id}
+        productId={product.id}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
