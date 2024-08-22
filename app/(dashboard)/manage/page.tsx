@@ -256,7 +256,7 @@ function GrowerCard({ grower }: { grower: Grower }) {
 
 function StrainList() {
   const strainsQuery = useQuery({
-    queryKey: ["strains", type],
+    queryKey: ["strains"],
     queryFn: () =>
       fetch(`/api/strains`).then((res) => res.json()),
   });
