@@ -48,14 +48,20 @@ import { Product } from "@prisma/client";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import { orderColumns } from "@tanstack/react-table";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   trigger: ReactNode;
   successCallback: (product: Product) => void;
 }
 
-
+async function fetchUserSettings() {
+  const res = await fetch("/api/user-settings"); // Call your API route
+  if (!res.ok) throw new Error("Failed to fetch user settings");
+  return res.json();
+}
 function CreateProductDialog({ trigger, successCallback }: Props) {
+ 
   const form = useForm<CreateProductSchemaType>({
     resolver: zodResolver(CreateProductSchema),
     defaultValues: {
@@ -64,6 +70,12 @@ function CreateProductDialog({ trigger, successCallback }: Props) {
   });
  
   const [open, setOpen] = useState(false);
+
+  const { data: userSettings, isLoading } = useQuery({
+    queryKey: ["userSettings"],    // Query key
+    queryFn: fetchUserSettings,    // Query function
+  });
+
 
   const handleProductChange = useCallback(
     (value: string) => {
@@ -134,6 +146,13 @@ function CreateProductDialog({ trigger, successCallback }: Props) {
     },
     [mutate]
   );
+  // If loading user settings, show a loading state (optional)
+  if (isLoading) {
+    return <div>Loading user settings...</div>;
+  }
+
+  // Destructure the weight unit from userSettings
+  const weightUnit = userSettings?.weight || "g";  // Default to grams if not available
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -191,13 +210,13 @@ function CreateProductDialog({ trigger, successCallback }: Props) {
                 <FormItem>
                   <FormLabel>Amount</FormLabel>
                   <FormControl>
-                  <Input
+                  <Input placeholder={`Enter amount in ${weightUnit}`}
           {...field}   // Spread field but override `value` within it
           value={field.value ?? ""}  // Coerce `null` to an empty string
         />
             </FormControl>
                   <FormDescription>
-                    Transaction amount (required)
+                  Quantity in {weightUnit} (e.g., 100 {weightUnit})
                   </FormDescription>
                 </FormItem>
               )}

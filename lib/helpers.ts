@@ -14,11 +14,16 @@ export function DateToUTCDate(date: Date) {
   );
 }
 
-export function GetFormatterForWeight(weight: string) {
-  const locale = Weights.find((c) => c.value === weight)?.locale;
+export function GetFormatterForWeight(unit: string) {
+  const weightInfo = Weights.find((w) => w.value === unit);
 
-  return new Intl.NumberFormat(locale, {
-    style: "weight",
-    weight,
+  if (!weightInfo) {
+    throw new Error(`Invalid unit: ${unit}`);
+  }
+
+  return new Intl.NumberFormat(weightInfo.locale, {
+    style: "unit",
+    unit: weightInfo.intlUnit,  // Use the valid Intl unit name
+    unitDisplay: "short",
   });
 }

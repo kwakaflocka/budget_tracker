@@ -51,12 +51,16 @@ import { CreateProduct } from "@/app/(dashboard)/_actions/new-products";
 import { toast } from "sonner";
 import { DateToUTCDate } from "@/lib/helpers";
 import CreateProductDialog from './CreateProductDialog';
-
+import { useQuery } from "@tanstack/react-query";
 interface Props {
   trigger: ReactNode;
   type: TransactionType;
 }
-
+async function fetchUserSettings() {
+  const res = await fetch("/api/user-settings"); // Call your API route
+  if (!res.ok) throw new Error("Failed to fetch user settings");
+  return res.json();
+}
 function CreateTransactionDialog({ trigger, type }: Props) {
   const form = useForm<CreateTransactionSchemaType>({
     resolver: zodResolver(CreateTransactionSchema),
@@ -67,6 +71,11 @@ function CreateTransactionDialog({ trigger, type }: Props) {
   });
   const [open, setOpen] = useState(false);
   
+  const { data: userSettings, isLoading } = useQuery({
+    queryKey: ["userSettings"],    // Query key
+    queryFn: fetchUserSettings,    // Query function
+  });
+
   const handleProductChange = useCallback(
     (value: string) => {
       form.setValue("product", value);
@@ -131,6 +140,13 @@ function CreateTransactionDialog({ trigger, type }: Props) {
     },
     [mutate]
   );
+// If loading user settings, show a loading state (optional)
+if (isLoading) {
+  return <div>Loading user settings...</div>;
+}
+
+// Destructure the weight unit from userSettings
+const weightUnit = userSettings?.weight || "g";  // Default to grams if not available
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -196,7 +212,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                     <Input defaultValue={0} type="number" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Transaction amount (required)
+                    Transaction amount in {weightUnit} (required)
                   </FormDescription>
                 </FormItem>
               )}

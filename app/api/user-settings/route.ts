@@ -20,12 +20,15 @@ export async function GET(request: Request) {
     userSettings = await prisma.userSettings.create({
       data: {
         userId: user.id,
-        weight: "USD",
+        weight: "g",
       },
     });
   }
 
   // Revalidate the home page that uses the user weight
   revalidatePath("/");
-  return Response.json(userSettings);
+  return new Response(JSON.stringify(userSettings), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
 }
