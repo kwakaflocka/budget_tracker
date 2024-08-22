@@ -210,10 +210,13 @@ function CreateProductDialog({ trigger, successCallback }: Props) {
                 <FormItem>
                   <FormLabel>Amount</FormLabel>
                   <FormControl>
-                  <Input placeholder={`Enter amount in ${weightUnit}`}
-          {...field}   // Spread field but override `value` within it
-          value={field.value ?? ""}  // Coerce `null` to an empty string
+                  <Input
+          {...field}
+          value={field.value ?? 0} // Ensure default value is 0
+          type="number"
+          placeholder="Enter product quantity"
         />
+
             </FormControl>
                   <FormDescription>
                   Quantity in {weightUnit} (e.g., 100 {weightUnit})

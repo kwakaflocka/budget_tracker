@@ -14,7 +14,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { GetInventoryHistoryResponseType } from "@/app/api/inventorys-history/route";
+import { GetProductHistoryResponseType } from "@/app/api/inventorys-history/route";
 
 import {
   Table,
@@ -41,7 +41,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import DeleteInventoryDialog from "@/app/(dashboard)/inventorys/_components/DeleteInventoryDialog";
+import DeleteProductDialog from "@/app/(dashboard)/inventorys/_components/DeleteProductDialog";
 
 interface Props {
   from: Date;
@@ -50,9 +50,9 @@ interface Props {
 
 const emptyData: any[] = [];
 
-type InventoryRow = GetInventoryHistoryResponseType[0] & { name: string, dateAdded: string, strain: string, grower: string, quantity: number };
+type ProductRow = GetProductHistoryResponseType[0] & { name: string, dateAdded: string, strain: string, grower: string, quantity: number };
 
-const columns: ColumnDef<InventoryRow>[] = [
+const columns: ColumnDef<ProductRow>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -127,11 +127,11 @@ const csvConfig = mkConfig({
   useKeysAsHeaders: true,
 });
 
-function InventoryTable({ from, to }: Props) {
+function ProductTable({ from, to }: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const history = useQuery<GetInventoryHistoryResponseType>({
+  const history = useQuery<GetProductHistoryResponseType>({
     queryKey: ["inventorys", "history", from, to],
     queryFn: () =>
       fetch(
@@ -314,14 +314,14 @@ function InventoryTable({ from, to }: Props) {
   );
 }
 
-export default InventoryTable;
+export default ProductTable;
 
-function RowActions({ inventory }: { inventory: InventoryRow }) {
+function RowActions({ inventory }: { inventory: ProductRow }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   return (
     <>
-      <DeleteInventoryDialog
+      <DeleteProductDialog
         open={showDeleteDialog}
         setOpen={setShowDeleteDialog}
         inventoryId={inventory.id}

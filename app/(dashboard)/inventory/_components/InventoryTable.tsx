@@ -14,7 +14,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { GetTransactionHistoryResponseType } from "@/app/api/transactions-history/route";
+import { GetProductHistoryResponseType } from "@/app/api/products-history/route";
 
 import {
   Table,
@@ -41,7 +41,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import DeleteTransactionDialog from "@/app/(dashboard)/transactions/_components/DeleteTransactionDialog";
+import DeleteProductDialog from "@/app/(dashboard)/inventory/_components/DeleteProductDialog";
 
 interface Props {
   from: Date;
@@ -50,32 +50,84 @@ interface Props {
 
 const emptyData: any[] = [];
 
-type InventoryRow = GetTransactionHistoryResponseType[0] & { name: string, dateAdded: string, strain: string, grower: string, quantity: number };
+type ProductHistoryRow = GetProductHistoryResponseType[0];
 
-const columns: ColumnDef<InventoryRow>[] = [
+const columns: ColumnDef<ProductHistoryRow>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "product.product",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
+      <DataTableColumnHeader column={column} title="Product" />
     ),
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
     cell: ({ row }) => (
-      <div className="capitalize">{row.original.name}</div>
+      <div className="flex gap-2 capitalize">
+        {row.original.productName}
+      </div>
     ),
   },
   {
-    accessorKey: "description",
+    accessorKey: "category",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Description" />
+      <DataTableColumnHeader column={column} title="Category" />
     ),
+    filterFn: (row, id, value) => {
+      const categoryName = row.original.categoryName; // Direct access to category name
+      return value.includes(categoryName); // Filter logic that checks if the filter value includes the category name
+    },
     cell: ({ row }) => (
-      <div className="capitalize">{row.original.description}</div>
+      <div className="flex gap-2 capitalize">
+        {row.original.categoryName}
+      </div>
     ),
   },
   {
-    accessorKey: "dateAdded",
-    header: "Date Added",
+    accessorKey: "grower",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Grower" />
+    ),
+    filterFn: (row, id, value) => {
+      const growerName = row.original.growerName; // Direct access to category name
+      return value.includes(growerName); // Filter logic that checks if the filter value includes the category name
+    },
+    cell: ({ row }) => (
+      <div className="flex gap-2 capitalize">
+        {row.original.growerName}
+        
+      </div>
+    ),
+  },
+  {
+    accessorKey: "strain",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Strain" />
+    ),
+    filterFn: (row, id, value) => {
+      const strainName = row.original.strainName; // Direct access to category name
+      return value.includes(strainName); // Filter logic that checks if the filter value includes the category name
+    },
+    cell: ({ row }) => (
+      <div className="flex gap-2 capitalize">
+       
+        <div className="capitalize">{row.original.strainName}</div>
+      </div>
+    ),
+  },
+  // {
+  //   accessorKey: "description",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Description" />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <div className="capitalize">{row.original.description}</div>
+  //   ),
+  // },
+  {
+    accessorKey: "date",
+    header: "Date Created",
     cell: ({ row }) => {
-      const date = new Date(row.original.dateAdded);
+      const date = new Date(row.original.date);
       const formattedDate = date.toLocaleDateString("default", {
         timeZone: "UTC",
         year: "numeric",
@@ -85,39 +137,42 @@ const columns: ColumnDef<InventoryRow>[] = [
       return <div className="text-muted-foreground">{formattedDate}</div>;
     },
   },
+  // {
+  //   accessorKey: "type",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Type" />
+  //   ),
+  //   filterFn: (row, id, value) => {
+  //     return value.includes(row.getValue(id));
+  //   },
+  //   cell: ({ row }) => (
+  //     <div
+  //       className={cn(
+  //         "capitalize rounded-lg text-center p-2",
+  //         row.original.type === "order" &&
+  //           "bg-emerald-400/10 text-emerald-500",
+  //         row.original.type === "returns" && "bg-red-400/10 text-red-500"
+  //       )}
+  //     >
+  //       {row.original.type === "order" ? "ordered" : "returned"}
+  //     </div>
+  //   ),
+  // },
   {
-    accessorKey: "strain",
+    accessorKey: "amount",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Strain" />
-    ),
-    cell: ({ row }) => (
-      <div className="capitalize">{row.original.strain}</div>
-    ),
-  },
-  {
-    accessorKey: "grower",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Grower" />
-    ),
-    cell: ({ row }) => (
-      <div className="capitalize">{row.original.grower}</div>
-    ),
-  },
-  {
-    accessorKey: "quantity",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Quantity" />
+      <DataTableColumnHeader column={column} title="Amount" />
     ),
     cell: ({ row }) => (
       <p className="text-md rounded-lg bg-gray-400/5 p-2 text-center font-medium">
-        {row.original.quantity}
+        {row.original.formattedAmount}
       </p>
     ),
   },
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => <RowActions transaction={row.original} />,
+    cell: ({ row }) => <RowActions product={row.original} />,
   },
 ];
 
@@ -127,15 +182,15 @@ const csvConfig = mkConfig({
   useKeysAsHeaders: true,
 });
 
-function InventoryTable({ from, to }: Props) {
+function ProductTable({ from, to }: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const history = useQuery<GetTransactionHistoryResponseType>({
-    queryKey: ["transactions", "history", from, to],
+  const history = useQuery<GetProductHistoryResponseType>({
+    queryKey: ["products", "history", from, to],
     queryFn: () =>
       fetch(
-        `/api/transactions-history?from=${DateToUTCDate(
+        `/api/products-history?from=${DateToUTCDate(
           from
         )}&to=${DateToUTCDate(to)}`
       ).then((res) => res.json()),
@@ -162,42 +217,55 @@ function InventoryTable({ from, to }: Props) {
   });
 
   const categoriesOptions = useMemo(() => {
-    const categoriesMap = new Map();
-    history.data?.forEach((transaction) => {
-      categoriesMap.set(transaction.category, {
-        value: transaction.category,
-        label: `${transaction.categoryIcon} ${transaction.category}`,
+    const categoriesMap = new Map<string, { value: string; label: string }>();
+    
+    history.data?.forEach((product: ProductHistoryRow) => {  // Explicitly type 'product'
+      categoriesMap.set(product.categoryName, {
+        value: product.categoryName,
+        label: `${product.categoryIcon} ${product.categoryName}`,
       });
     });
-    const uniqueCategories = new Set(categoriesMap.values());
-    return Array.from(uniqueCategories);
+  
+    return Array.from(categoriesMap.values()); // Ensure this returns a proper array
   }, [history.data]);
+  
   const growersOptions = useMemo(() => {
-    const growersMap = new Map();
-    history.data?.forEach((transaction) => {
-      growersMap.set(transaction.grower, {
-        value: transaction.grower,
-        label: `${transaction.growerIcon} ${transaction.grower}`,
+    const growersMap = new Map<string, { value: string; label: string }>();
+  
+    history.data?.forEach((product: ProductHistoryRow) => {  // Explicitly type 'product'
+      growersMap.set(product.growerName, {
+        value: product.growerName,
+        label: `${product.growerIcon} ${product.growerName}`,
       });
     });
-    const uniqueGrowers = new Set(growersMap.values());
-    return Array.from(uniqueGrowers);
+  
+    return Array.from(growersMap.values());
   }, [history.data]);
+  
   const strainsOptions = useMemo(() => {
-    const strainsMap = new Map();
-    history.data?.forEach((transaction) => {
-      strainsMap.set(transaction.strain, {
-        value: transaction.strain,
-        label: `${transaction.strainIcon} ${transaction.strain}`,
+    const strainsMap = new Map<string, { value: string; label: string }>();
+  
+    history.data?.forEach((product: ProductHistoryRow) => {  // Explicitly type 'product'
+      strainsMap.set(product.strainName, {
+        value: product.strainName,
+        label: `${product.strainIcon} ${product.strainName}`,
       });
     });
-    const uniqueStrains = new Set(strainsMap.values());
-    return Array.from(uniqueStrains);
+  
+    return Array.from(strainsMap.values());
   }, [history.data]);
+  
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-end justify-between gap-2 py-4">
         <div className="flex gap-2">
+          {table.getColumn("category") && (
+            <DataTableFacetedFilter
+              title="Category"
+              column={table.getColumn("category")}
+              options={categoriesOptions}
+            />
+          )}
           {table.getColumn("grower") && (
             <DataTableFacetedFilter
               title="Grower"
@@ -205,7 +273,15 @@ function InventoryTable({ from, to }: Props) {
               options={growersOptions}
             />
           )}
-          {table.getColumn("type") && (
+                    {table.getColumn("strain") && (
+            <DataTableFacetedFilter
+              title="Strain"
+              column={table.getColumn("strain")}
+              options={strainsOptions}
+            />
+          )}
+          
+          {/* {table.getColumn("type") && (
             <DataTableFacetedFilter
               title="Type"
               column={table.getColumn("type")}
@@ -214,7 +290,7 @@ function InventoryTable({ from, to }: Props) {
                 { label: "returns", value: "returns" },
               ]}
             />
-          )}
+          )} */}
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -223,13 +299,15 @@ function InventoryTable({ from, to }: Props) {
             className="ml-auto h-8 lg:flex"
             onClick={() => {
               const data = table.getFilteredRowModel().rows.map((row) => ({
-                name: row.original.name,
-                description: row.original.description,
-                dateAdded: row.original.dateAdded,
-                strain: row.original.strain,
-                grower: row.original.grower,
                 category: row.original.category,
-                quantity: row.original.quantity,
+                categoryIcon: row.original.categoryIcon,
+                grower: row.original.grower,
+                growerIcon: row.original.growerIcon,
+                strain: row.original.strain,
+                strainIcon: row.original.strainIcon,
+                amount: row.original.amount,
+                formattedAmount: row.original.formattedAmount,
+                date: row.original.date,
               }));
               handleExportCSV(data);
             }}
@@ -314,17 +392,17 @@ function InventoryTable({ from, to }: Props) {
   );
 }
 
-export default InventoryTable;
+export default ProductTable;
 
-function RowActions({ transaction }: { transaction: InventoryRow }) {
+function RowActions({ product }: { product: ProductHistoryRow }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   return (
     <>
-      <DeleteTransactionDialog
+      <DeleteProductDialog
         open={showDeleteDialog}
         setOpen={setShowDeleteDialog}
-        transactionId={transaction.id}
+        id={product.id}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
