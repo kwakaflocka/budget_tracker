@@ -64,6 +64,7 @@ function DeleteStrainDialog({ strain, trigger }: Props) {
               });
               deleteMutation.mutate({
                 name: strain.name,
+                icon: strain.icon
               });
             }}
           >

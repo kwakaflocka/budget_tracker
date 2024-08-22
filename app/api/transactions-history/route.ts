@@ -20,7 +20,7 @@ export async function GET(request: Request) {
   });
 
   if (!queryParams.success) {
-    return Response.json(queryParams.error.message, {
+    return new Response(JSON.stringify({ error: queryParams.error.message }), {
       status: 400,
     });
   }
@@ -31,13 +31,14 @@ export async function GET(request: Request) {
     queryParams.data.to
   );
 
-  return Response.json(transactions);
+  return new Response(JSON.stringify(transactions));
 }
 
 export type GetTransactionHistoryResponseType = Awaited<
   ReturnType<typeof getTransactionsHistory>
 >;
 
+// Function to fetch the transaction history with grower, strain, and category included
 async function getTransactionsHistory(userId: string, from: Date, to: Date) {
   const userSettings = await prisma.userSettings.findUnique({
     where: {
@@ -50,9 +51,10 @@ async function getTransactionsHistory(userId: string, from: Date, to: Date) {
 
   const formatter = GetFormatterForCurrency(userSettings.currency);
 
+  // Fetch transactions including product's grower, strain, and category
   const transactions = await prisma.transaction.findMany({
     where: {
-      userId,
+     
       date: {
         gte: from,
         lte: to,
@@ -61,11 +63,36 @@ async function getTransactionsHistory(userId: string, from: Date, to: Date) {
     orderBy: {
       date: "desc",
     },
+    include: {
+      product: {
+        select: {
+          product: true,  // Include product name
+          category: {
+            select: {
+              name: true, // Include category name
+            },
+          },
+          grower: {
+            select: {
+              name: true, // Include grower name
+            },
+          },
+          strain: {
+            select: {
+              name: true, // Include strain name
+            },
+          },
+        },
+      },
+    },
   });
 
   return transactions.map((transaction) => ({
     ...transaction,
-    // lets format the amount with the user currency
-    formattedAmount: formatter.format(transaction.amount),
+    productName: transaction.product?.product || "Unknown Product",  // Add product name
+    growerName: transaction.product?.grower?.name || "Unknown Grower",  // Add grower name
+    strainName: transaction.product?.strain?.name || "Unknown Strain",  // Add strain name
+    categoryName: transaction.product?.category?.name || "Unknown Category",  // Add category name
+    formattedAmount: formatter.format(transaction.amount),  // Format the amount based on user currency
   }));
 }

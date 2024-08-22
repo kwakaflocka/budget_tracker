@@ -54,17 +54,16 @@ type TransactionHistoryRow = GetTransactionHistoryResponseType[0];
 
 const columns: ColumnDef<TransactionHistoryRow>[] = [
   {
-    accessorKey: "category",
+    accessorKey: "Product",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Category" />
+      <DataTableColumnHeader column={column} title="Product" />
     ),
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+    filterFn: (row, product, value) => {
+      return value.includes(row.getValue(product));
     },
     cell: ({ row }) => (
       <div className="flex gap-2 capitalize">
-        {row.original.categoryIcon}
-        <div className="capitalize">{row.original.category}</div>
+        {row.original.product.product}
       </div>
     ),
   },
@@ -78,8 +77,8 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
     },
     cell: ({ row }) => (
       <div className="flex gap-2 capitalize">
-        {row.original.grower}
-        <div className="capitalize">{row.original.grower}</div>
+        {row.original.product.grower.name}
+        
       </div>
     ),
   },
