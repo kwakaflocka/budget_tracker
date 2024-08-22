@@ -191,8 +191,11 @@ function CreateProductDialog({ trigger, successCallback }: Props) {
                 <FormItem>
                   <FormLabel>Amount</FormLabel>
                   <FormControl>
-                    <Input defaultValue={0} type="number" {...field} />
-                  </FormControl>
+                  <Input
+          {...field}   // Spread field but override `value` within it
+          value={field.value ?? ""}  // Coerce `null` to an empty string
+        />
+            </FormControl>
                   <FormDescription>
                     Transaction amount (required)
                   </FormDescription>

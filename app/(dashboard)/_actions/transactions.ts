@@ -68,7 +68,7 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
 await prisma.transaction.create({
   data: {
     amount: parsedBody.data.amount,
-    description: description || null,  // Set to null if not provided
+    description: description || null || "",  // Set to null if not provided
     date: parsedBody.data.date,
     type: parsedBody.data.type,
     product: {
@@ -79,32 +79,14 @@ await prisma.transaction.create({
 });
 
   
-  await prisma.product.upsert({
-    where: {
-      product: parsedBody.data.product,  // Assuming 'product' is a unique field in your schema
+await prisma.product.update({
+  where: { product: parsedBody.data.product },
+  data: {
+    quantity: {
+      increment: type === "order" ? amount : -amount, // Increment for returns, decrement for orders
     },
-    update: {
-      quantity: {
-        increment: +amount,  // Increment the quantity by 'amount'
-      },
-    },
-    create: {
-      product: parsedBody.data.product,  // Create a new product if it doesn't exist
-      quantity: +amount,                 // Initialize the quantity with the given amount                // Set other fields as necessary
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      strain: {
-        connect: { id: strainRow.id },   // Connect to an existing strain
-      },
-      grower: {
-        connect: { id: growerRow.id },   // Connect to an existing grower
-      },
-      category: {
-        connect: { id: categoryRow.id }, // Connect to an existing category
-      },
-      // Add other optional fields if necessary (icon, etc.)
-    },
-  });
+  },
+});
   
   // Update month aggregate table
   await prisma.monthHistory.upsert({

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const CreateProductSchema = z.object({
   product: z.coerce.string(),
-  quantity: z.coerce.number().positive().multipleOf(0.01),
+  quantity: z.coerce.number().min(0).multipleOf(0.01).nullable(), // Allow 0 or positive numbers
   createdAt: z.coerce.date(),
   categoryIcon: z.string().optional(),
   category: z.string(),
