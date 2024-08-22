@@ -70,16 +70,19 @@ async function getTransactionsHistory(userId: string, from: Date, to: Date) {
           category: {
             select: {
               name: true, // Include category name
+              icon: true,
             },
           },
           grower: {
             select: {
               name: true, // Include grower name
+              icon: true,
             },
           },
           strain: {
             select: {
               name: true, // Include strain name
+              icon: true,
             },
           },
         },
@@ -93,6 +96,9 @@ async function getTransactionsHistory(userId: string, from: Date, to: Date) {
     growerName: transaction.product?.grower?.name || "Unknown Grower",  // Add grower name
     strainName: transaction.product?.strain?.name || "Unknown Strain",  // Add strain name
     categoryName: transaction.product?.category?.name || "Unknown Category",  // Add category name
+    growerIcon: transaction.product?.grower?.icon || "Unknown Grower",  // Add grower name
+    strainIcon: transaction.product?.strain?.icon || "Unknown Strain",  // Add strain name
+    categoryIcon: transaction.product?.category?.icon || "Unknown Category",  // Add category name
     formattedAmount: formatter.format(transaction.amount),  // Format the amount based on user currency
   }));
 }

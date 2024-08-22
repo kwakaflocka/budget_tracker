@@ -54,16 +54,31 @@ type TransactionHistoryRow = GetTransactionHistoryResponseType[0];
 
 const columns: ColumnDef<TransactionHistoryRow>[] = [
   {
-    accessorKey: "Product",
+    accessorKey: "product.product",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Product" />
     ),
-    filterFn: (row, product, value) => {
-      return value.includes(row.getValue(product));
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
     cell: ({ row }) => (
       <div className="flex gap-2 capitalize">
         {row.original.product.product}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "category",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Category" />
+    ),
+    filterFn: (row, id, value) => {
+      const categoryName = row.original.product.category.name; // Direct access to category name
+      return value.includes(categoryName); // Filter logic that checks if the filter value includes the category name
+    },
+    cell: ({ row }) => (
+      <div className="flex gap-2 capitalize">
+        {row.original.product.category.name}
       </div>
     ),
   },
@@ -73,7 +88,8 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Grower" />
     ),
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+      const growerName = row.original.product.grower.name; // Direct access to category name
+      return value.includes(growerName); // Filter logic that checks if the filter value includes the category name
     },
     cell: ({ row }) => (
       <div className="flex gap-2 capitalize">
@@ -88,12 +104,13 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Strain" />
     ),
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+      const strainName = row.original.product.strain.name; // Direct access to category name
+      return value.includes(strainName); // Filter logic that checks if the filter value includes the category name
     },
     cell: ({ row }) => (
       <div className="flex gap-2 capitalize">
-        {row.original.strain}
-        <div className="capitalize">{row.original.strain}</div>
+       
+        <div className="capitalize">{row.original.product.strain.name}</div>
       </div>
     ),
   },
@@ -202,21 +219,23 @@ function TransactionTable({ from, to }: Props) {
   const categoriesOptions = useMemo(() => {
     const categoriesMap = new Map();
     history.data?.forEach((transaction) => {
-      categoriesMap.set(transaction.category, {
-        value: transaction.category,
-        label: `${transaction.categoryIcon} ${transaction.category}`,
+      categoriesMap.set(transaction.product.category.name, {
+        value: transaction.product.category.name,
+        label: `${transaction.product.category.icon} ${transaction.product.category.name}`,
       });
     });
-    const uniqueCategories = new Set(categoriesMap.values());
-    return Array.from(uniqueCategories);
+    // const uniqueCategories = new Set(categoriesMap.values());
+    // return Array.from(uniqueCategories);
+    return Array.from(categoriesMap.values()); // Ensure this returns a proper array
+
   }, [history.data]);
 
   const growersOptions = useMemo(() => {
     const growersMap = new Map();
     history.data?.forEach((transaction) => {
-      growersMap.set(transaction.grower, {
-        value: transaction.grower,
-        label: `${transaction.growerIcon} ${transaction.grower}`,
+      growersMap.set(transaction.product.grower.name, {
+        value: transaction.product.grower.name,
+        label: `${transaction.product.grower.name} ${transaction.product.grower.icon}`,
       });
     });
     const uniqueGrowers = new Set(growersMap.values());
@@ -226,9 +245,9 @@ function TransactionTable({ from, to }: Props) {
   const strainsOptions = useMemo(() => {
     const strainsMap = new Map();
     history.data?.forEach((transaction) => {
-      strainsMap.set(transaction.strain, {
-        value: transaction.strain,
-        label: `${transaction.strainIcon} ${transaction.strain}`,
+      strainsMap.set(transaction.product.strain.name, {
+        value: transaction.product.strain.name,
+        label: `${transaction.product.strain.name} ${transaction.product.strain.icon}`,
       });
     });
     const uniqueStrains = new Set(strainsMap.values());
